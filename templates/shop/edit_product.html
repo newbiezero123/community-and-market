@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}แก้ไขสินค้า{% endblock %}
+
+{% block content %}
+<div class="container py-3">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-9">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-warning text-white text-center">
+                    <h2 class="mb-0">แก้ไขสินค้า</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ชื่อสินค้า</label>
+                            {{ form.name|add_class:"form-control" }}
+                        </div>
+
+                        <div class="mb-5">
+                            <label class="form-label fw-bold">รายละเอียดสินค้า</label>
+                            {{ form.description|add_class:"form-control"|attr:"rows:3" }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">ราคา</label>
+                                    {{ form.price|add_class:"form-control" }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">สต็อกสินค้า</label>
+                                    {{ form.stock|add_class:"form-control" }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ประเภทสินค้า</label>
+                            {{ form.category|add_class:"form-select" }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">รูปภาพสินค้า</label>
+                            <div class="text-center">
+                                {% if form.instance.image %}
+                                    <img src="{{ form.instance.image.url }}" class="img-thumbnail mb-3" width="200">
+                                {% endif %}
+                            </div>
+                            {{ form.image|add_class:"form-control" }}
+                        </div>
+
+                        <button type="submit" class="btn btn-warning w-100 fw-bold">
+                            <i class="fas fa-save"></i> อัปเดตสินค้า
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control {
+        border-radius: 10px;
+        padding: 10px;
+    }
+    .btn-warning {
+        border-radius: 10px;
+        padding: 12px;
+        font-size: 18px;
+    }
+</style>
+{% endblock %}

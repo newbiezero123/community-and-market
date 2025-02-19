@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+<div class="cart-container">
+    <a href="{% url 'view_cart' %}" class="cart-link">
+        <i class="fas fa-shopping-cart"></i> ตะกร้าสินค้า
+    </a>
+</div>
+<div class="product-container">
+    <div class="row g-4">
+        <!-- รูปสินค้า -->
+        <div class="col-md-6">
+            <div class="image-wrapper">
+                <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
+            </div>
+        </div>
+
+        <!-- รายละเอียดสินค้า -->
+        <div class="col-md-6">
+            <div class="product-details">
+                <h1 class="product-title">{{ product.name }}</h1>
+                <div class="price-tag">฿{{ product.price }}</div>
+                
+                <div class="stock-info mb-4">
+                    <span class="stock-badge {% if product.is_in_stock %}in-stock{% else %}out-of-stock{% endif %}">
+                        {% if product.is_in_stock %}มีสินค้า{% else %}สินค้าหมด{% endif %}
+                    </span>
+                    <span class="stock-count">คงเหลือ: {{ product.stock }} ชิ้น</span>
+                </div>
+
+                <div class="description">
+                    {{ product.description }}
+                </div>
+
+                <div class="action-buttons">
+                    {% if product.stock > 0 %}
+                        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-cart-plus"></i> เพิ่มลงตะกร้า
+                        </a>
+                        <a href="{% url 'purchase_item' %}?product_id={{ product.id }}" class="btn btn-primary btn-lg">ซื้อสินค้า</a>
+                    {% else %}
+                        <button class="btn-disabled" disabled>เพิ่มลงตะกร้า</button>
+                        <button class="btn-disabled" disabled>ซื้อสินค้า</button>
+                    {% endif %}
+                    <a href="{% url 'product_list' %}" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> กลับไปหน้าร้านค้า
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.product-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.image-wrapper {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    text-align: center;
+}
+
+.product-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.product-image:hover {
+    transform: scale(1.02);
+}
+
+.product-details {
+    padding: 1rem;
+}
+
+.product-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.price-tag {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #e74c3c;
+    margin-bottom: 1.5rem;
+}
+
+.stock-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.stock-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-weight: 500;
+}
+
+.in-stock {
+    background: #27ae60;
+    color: white;
+}
+
+.out-of-stock {
+    background: #e74c3c;
+    color: white;
+}
+
+.stock-count {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+}
+
+.description {
+    margin: 1.5rem 0;
+    color: #34495e;
+    line-height: 1.6;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-add-cart, .btn-buy, .btn-back, .btn-disabled {
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-add-cart {
+    background: #3498db;
+    color: white;
+}
+
+.btn-add-cart:hover {
+    background: #2980b9;
+}
+
+.btn-buy {
+    background: #2ecc71;
+    color: white;
+}
+
+.btn-buy:hover {
+    background: #27ae60;
+}
+
+.btn-back {
+    background: #f1f2f6;
+    color: #2c3e50;
+    text-decoration: none;
+}
+
+.btn-back:hover {
+    background: #dfe4ea;
+}
+
+.btn-disabled {
+    background: #95a5a6;
+    color: white;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .product-container {
+        padding: 1rem;
+        margin: 1rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .cart-floating {
+        position: fixed;
+        bottom: 2rem;
+        top: auto;
+        right: 2rem;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}ร้านค้า{% endblock %}
+{% block content %}
+<!-- {% if messages %}
+    <div class="container mt-3">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %} -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="cart-container">
+                <a href="{% url 'view_cart' %}" class="cart-link">
+                    <i class="fas fa-shopping-cart"></i> ตะกร้าสินค้า
+                </a>
+            </div>            
+            <!-- Row of cards -->
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for product in products %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <!-- รูปภาพสินค้า -->
+                        <div class="image-container">
+                            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                        </div>
+
+                        <!-- เนื้อหาสินค้า -->
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text text-muted">
+                                ประเภท: {{ product.get_category_display }}
+                            </p>
+                            <p class="card-text text-muted">
+                                ราคา: {{ product.price }} บาท
+                            </p>
+                            <p class="card-text">
+                                {{ product.description|truncatechars:40 }}
+                            </p>
+                            <div class="mb-3">
+                                <span class="badge {% if product.is_in_stock %}bg-success{% else %}bg-danger{% endif %} py-2 px-3">
+                                    {% if product.is_in_stock %}มีสินค้า{% else %}สินค้าหมด{% endif %}
+                                </span>
+                                <span class="ms-2 text-muted">คงเหลือ: {{ product.stock }} ชิ้น</span>
+                            </div>
+                            {% if product.stock > 0 %}
+                                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-outline-primary">เพิ่มลงตะกร้า</a>
+                                <a href="{% url 'purchase_item' %}?product_id={{ product.id }}" class="btn btn-primary">ซื้อสินค้า</a>
+                                <a href="{% url 'product_detail' product.id %}" class="btn btn-info">ดูรายละเอียด</a>
+                            {% else %}
+                                <button class="btn btn-outline-secondary" disabled>เพิ่มลงตะกร้า</button>
+                                <button class="btn btn-secondary" disabled>ซื้อสินค้า</button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center" role="alert">
+                        ยังไม่มีสินค้าในระบบ
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom CSS สำหรับจัดการรูปภาพ -->
+<style>
+    .image-container {
+        width: 100%;
+        height: 200px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .image-container img {
+        width: auto;
+        height: 100%;
+        object-fit: cover;
+    }
+</style>
+{% if messages %}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    var messages = [
+        {% for message in messages %}
+        {
+            icon: "{{ message.tags|escapejs }}",
+            title: "{{ message|escapejs }}",
+            timer: 2000
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    messages.forEach(function(msg){
+        Swal.fire({
+            icon: msg.icon,
+            title: msg.title,
+            showConfirmButton: false,
+            timer: msg.timer
+        });
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}ร้านค้า{% endblock %}
+{% block content %}
+<div class="container mt-5">
+   <div class="row justify-content-center">
+       <div class="col-md-6">
+           <div class="card shadow text-center">
+               <div class="card-body py-5">
+                   <div class="mb-4">
+                       <i class="fas fa-check-circle text-success" style="font-size: 64px;"></i>
+                   </div>
+                   <h2 class="card-title text-success mb-3">ขอบคุณที่สั่งซื้อสินค้า</h2>
+                   <p class="card-text text-muted mb-4">คำสั่งซื้อของคุณถูกบันทึกเรียบร้อยแล้ว</p>
+                   <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg rounded-pill px-4">
+                       <i class="fas fa-shopping-cart me-2"></i>
+                       กลับไปยังหน้ารายการสินค้า
+                   </a>
+               </div>
+           </div>
+       </div>
+   </div>
+</div>
+{% endblock %}

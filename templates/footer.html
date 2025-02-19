@@ -1,0 +1,57 @@
+<footer class="footer mt-auto bg-dark text-light py-4">
+    <div class="container-fluid text-center">
+        <div class="row justify-content-center">
+            <div class="col-md-4 mb-3">
+                <h5 class="text-white mb-3">About Us</h5>
+                <p class="text-white">This web is for Community.</p>
+            </div>
+            <div class="col-md-4 mb-3">
+                <h5 class="text-white mb-3">Links</h5>
+                <ul class="list-unstyled">
+                    {% if user.is_authenticated %}
+                    <li><a class="text-light nav-link p-0 mb-2" href="{% url 'product_list' %}">ร้านค้า</a></li>
+                    <li><a class="text-light nav-link p-0 mb-2" href="{% url 'profile' %}">โปรไฟล์</a></li>
+                    {% else %}
+                    <li><a class="text-light nav-link p-0 mb-2" href="{% url 'login' %}">เข้าสู่ระบบ</a></li>
+                    <li><a class="text-light nav-link p-0 mb-2" href="{% url 'signup' %}">สมัครสมาชิก</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="col-md-4 mb-3">
+                <h5 class="text-white mb-3">Contact Us</h5>
+                <p class="text-white mb-2">Email: newbie@gmail.com</p>
+                <p class="text-white">Phone: 0958929xxx</p>
+            </div>
+        </div>
+        <div class="border-top border-secondary pt-3 mt-3">
+            <p class="mb-0 text-white">&copy; 2024 WebForum. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+<style>
+        .footer {
+    background-color: #212529;
+    color: #f8f9fa;
+    }
+
+    .footer a {
+        color: #adb5bd;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .footer a:hover {
+        color: #fff;
+        text-decoration: underline;
+    }
+
+    .footer h5 {
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+
+    .footer .border-top {
+        border-color: #495057 !important;
+    }
+
+</style>

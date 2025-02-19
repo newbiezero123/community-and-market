@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}รายละเอียดคำสั่งซื้อ{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0">รายละเอียดคำสั่งซื้อ</h2>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <strong>วันที่สั่งซื้อ:</strong> 
+                        <span class="text-muted">{{ order.created_at|date:"d/m/Y H:i" }}</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>สถานะ:</strong> 
+                        {% if order.status == 'pending' %}
+                            รอดำเนินการ
+                        {% elif order.status == 'pickup' %}
+                            สินค้าพร้อมรับ
+                        {% elif order.status == 'shipped' %}
+                            กำลังจัดส่ง - เลขติดตามพัสดุ: {{ order.tracking_number }}
+                        {% elif order.status == 'cancelled' %}
+                            ยกเลิก - เหตุผล: {{ order.cancellation_reason }}
+                        {% elif order.status == 'completed' %}
+                            เสร็จสมบูรณ์
+                        {% endif %}
+                    </div>
+                    {% if order.buyer_message %}
+                    <div class="mb-3">
+                        <strong>ข้อความถึงผู้ขาย:</strong>
+                        <span class="text-muted">{{ order.buyer_message }}</span>
+                    </div>
+                    {% endif %}
+                    <!-- ปุ่มสำหรับยืนยันการรับสินค้า (เฉพาะเมื่อสถานะเป็น "กำลังจัดส่ง" หรือ "สินค้าพร้อมรับ") -->
+                    {% if order.status == 'shipped' or order.status == 'pickup' %}
+                    <div class="mb-3">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <button type="submit" name="mark_completed" class="btn btn-success">ได้รับสินค้าแล้ว</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <strong>ราคารวม:</strong> 
+                        <span class="text-danger fw-bold">{{ order.total_price }} บาท</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>วิธีการจัดส่ง:</strong>
+                        <span class="text-muted">
+                            {% if order.delivery_method == 'home' %}
+                                จัดส่งถึงบ้าน
+                            {% else %}
+                                รับสินค้าคณะ
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {% if order.delivery_method == 'home' %}
+            <div class="row mb-3">
+                <div class="col-12">
+                    <strong>ที่อยู่จัดส่ง:</strong> 
+                    <span class="text-muted">{{ order.shipping_address|default:"-" }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="row mb-3">
+                <div class="col-12">
+                    <strong>สลิปโอนเงิน:</strong>
+                    {% if order.payment_slip %}
+                        <a href="{{ order.payment_slip.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            ดูสลิป
+                        </a>
+                    {% else %}
+                        <span class="text-muted">ไม่มีสลิป</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <h3 class="mt-4 mb-3">สินค้าที่สั่งซื้อ</h3>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>รูปสินค้า</th>
+                            <th>สินค้า</th>
+                            <th>จำนวน</th>
+                            <th>Size</th>
+                            <th>ราคาต่อชิ้น</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in order.items.all %}
+                        <tr>
+                            <td>
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail" style="max-width: 100px;">
+                            </td>
+                            <td>{{ item.product.name }}</td>
+                            <td>{{ item.quantity }} ชิ้น</td>
+                            <td>
+                                {% if item.size %}
+                                    {{ item.size }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>{{ item.price|floatformat:2 }} บาท</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

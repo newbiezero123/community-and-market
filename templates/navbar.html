@@ -1,0 +1,152 @@
+<style>
+    .navbar {
+    background-color: #ffffff; /* สีพื้นหลัง */
+    padding: 1rem;
+    box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.2); /* เงาเส้นด้านล่าง */
+  }
+    .bg-maroon {
+        background: linear-gradient(135deg, #ffffff, #ffffff);
+        color: white;
+    }
+    .bg-maroon .navbar-brand {
+        color: rgb(15, 5, 5) !important; 
+        padding: 0 !important;
+        margin: 5px !important;
+        transition: color 0.3s ease;
+    }
+    .bg-maroon .navbar-brand:hover {
+        color: #816666 !important;
+    }
+    .bg-maroon .navbar-nav .nav-link {
+        color: rgb(68, 67, 67) !important; 
+        transition: color 0.3s ease;
+    }
+    .bg-maroon .navbar-nav .nav-link:hover {
+        color: #000000 !important;
+    }
+    .navbar-brand-group {
+        display: flex;
+        gap: 0;
+    }
+    .navbar-toggler {
+        border-color: rgb(0, 0, 0) !important;
+    }
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0, 0, 0, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+    }
+    
+    /* เพิ่ม CSS สำหรับการเว้นระยะห่างระหว่างปุ่ม */
+    .navbar-nav .btn-outline-primary {
+        margin-right: 2px; /* เพิ่มระยะห่างทางขวาของปุ่มเข้าสู่ระบบ */
+    }
+    
+    /* สำหรับหน้าจอมือถือ */
+    @media (max-width: 991.98px) {
+        /* กำหนดให้สร้าง container สำหรับปุ่มใน navbar เมื่ออยู่ในโหมดมือถือ */
+        .navbar-nav {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        /* กำหนดให้ปุ่มมีความกว้างเท่ากันและจัดตำแหน่ง */
+        .navbar-nav .btn-outline-primary,
+        .navbar-nav .btn-primary {
+            margin: 2px 0;
+            width: 100%; /* ปุ่มขยายเต็มความกว้าง */
+            text-align: center;
+            display: block;
+        }
+        
+        /* สร้าง container แยกสำหรับปุ่มเมื่ออยู่ในโหมดมือถือ */
+        #navbarNav .navbar-nav:not(.ms-auto) {
+            margin-top: 10px;
+        }
+    }
+    
+    /* สำหรับโหมดมือถือขนาดเล็กมาก */
+    @media (max-width: 575.98px) {
+        .navbar-nav .btn-outline-primary,
+        .navbar-nav .btn-primary {
+            font-size: 14px; /* ลดขนาดตัวอักษรในหน้าจอขนาดเล็กมาก */
+            padding: 8px 16px; /* ปรับขนาด padding */
+        }
+    }
+</style>
+<head>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+
+<nav class="navbar navbar-expand-lg bg-maroon fixed-top">
+    <div class="container">
+        <div class="navbar-brand-group">
+            <a class="navbar-brand" href="/">
+                <img src="/media/1.png" alt="หน้าแรก" style="height: 40px;">
+            </a>             
+        </div>  
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="navbar-nav ms-auto"> 
+                {% if user.is_authenticated %}
+                    <a class="nav-item nav-link" href="{% url 'order_history' %}">
+                        <i class="fas fa-history"></i> ประวัติการสั่งซื้อ
+                    </a>
+                    <!-- <a class="nav-item nav-link" href="{% url 'view_cart' %}">
+                        <i class="fas fa-shopping-cart"></i> ตะกร้าสินค้า
+                    </a> -->
+                    <a class="nav-item nav-link" href="{% url 'product_list' %}">
+                        <i class="fas fa-store"></i> ร้านค้า
+                    </a>
+                    <!-- <a class="nav-item nav-link" href="{% url 'create_post' %}">
+                        <i class="fas fa-pencil-alt"></i> เขียนโพส
+                    </a> -->
+                    <a class="nav-item nav-link" href="{% url 'post_list' %}">
+                        <i class="fas fa-book-open"></i> อ่านโพส
+                    </a>
+                    <a class="nav-item nav-link" href="{% url 'profile' %}">
+                        <i class="fas fa-user"></i> โปรไฟล์
+                    </a>
+                    <form id="logout-form" method="POST" action="{% url 'logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <a class="nav-item nav-link" href="#" onclick="confirmLogout(event, this.closest('form'));">
+                            <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+                        </a>
+                    </form>                    
+                {% else %}
+                    <a class="btn btn-outline-primary" href="{% url 'login' %}">
+                        <i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ
+                    </a>
+                    <a class="btn btn-primary" href="{% url 'signup' %}">
+                        <i class="fas fa-user-plus"></i> สมัครสมาชิก
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmLogout(event, form) {
+        event.preventDefault(); // ป้องกันการ submit ทันที
+
+        Swal.fire({
+            title: "คุณแน่ใจหรือไม่?",
+            text: "คุณต้องการออกจากระบบหรือไม่?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "ออกจากระบบ",
+            cancelButtonText: "ยกเลิก"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit(); // ส่งฟอร์มออกจากระบบเมื่อกดยืนยัน
+            }
+        });
+    }
+</script>

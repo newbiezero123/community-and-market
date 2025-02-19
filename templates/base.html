@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}ระบบสมาชิก{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'css/navbar_footer.css' %}" rel="stylesheet">
+    <link href="{% static 'css/admin_sidebar.css' %}" rel="stylesheet">
+    <link rel="icon" href="\media\0.png" type="image/x-icon">
+    <link rel="shortcut icon" href="\media\0.png" type="image/x-icon">
+</head>
+<style>
+    body {
+    padding-top: 70px; 
+    .cart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.cart-link {
+    display: inline-flex;
+    align-items: center;
+    background-color: #007bff; /* สีพื้นหลัง */
+    color: #fff; /* สีตัวอักษร */
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cart-link i {
+    margin-right: 8px;
+    font-size: 20px;
+}
+
+.cart-link:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+}
+</style>
+<body>
+    {% include 'navbar.html' %}
+    {% if user.is_staff %}
+    {% include 'admin_dashboard.html' %}
+    {% endif %}
+    <div class="main-container d-flex flex-column min-vh-100">
+        <div class="content flex-grow-1 py-4">
+            <div class="container mt-4">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </div>
+        {% include 'footer.html' %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

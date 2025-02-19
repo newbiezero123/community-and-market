@@ -1,0 +1,59 @@
+.navbar {
+    background-color: #ffffff; /* สีพื้นหลัง */
+    padding: 1rem;
+    box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.2); /* เงาเส้นด้านล่าง */
+  }
+    .bg-maroon {
+        background: linear-gradient(135deg, #ffffff, #ffffff);
+        color: white;
+    }
+    .bg-maroon .navbar-brand {
+        color: rgb(15, 5, 5) !important; 
+        padding: 0 !important;
+        margin: 5px !important;
+        transition: color 0.3s ease;
+    }
+    .bg-maroon .navbar-brand:hover {
+        color: #816666 !important;
+    }
+    .bg-maroon .navbar-nav .nav-link {
+        color: rgb(68, 67, 67) !important; 
+        transition: color 0.3s ease;
+    }
+    .bg-maroon .navbar-nav .nav-link:hover {
+        color: #000000 !important;
+    }
+    .navbar-brand-group {
+        display: flex;
+        gap: 0;
+    }
+    .navbar-toggler {
+        border-color: rgb(0, 0, 0) !important;
+    }
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(0, 0, 0, 1)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+    }
+    .footer {
+    background-color: #212529;
+    color: #f8f9fa;
+    }
+
+    .footer a {
+        color: #adb5bd;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .footer a:hover {
+        color: #fff;
+        text-decoration: underline;
+    }
+
+    .footer h5 {
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+
+    .footer .border-top {
+        border-color: #495057 !important;
+    }

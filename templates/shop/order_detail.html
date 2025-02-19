@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% block title %}รายละเอียดคำสั่งซื้อ{% endblock %}
+{% block content %}
+<div class="container mt-4">
+   <div class="card shadow-sm">
+       <div class="card-header bg-primary text-white">
+           <h2 class="mb-0">รายละเอียดคำสั่งซื้อ</h2>
+       </div>
+       <div class="card-body">
+           <div class="row">
+               <div class="col-md-6">
+                   <div class="mb-3">
+                       <strong>ผู้สั่งซื้อ:</strong> 
+                       <span class="text-muted">{{ order.user.username }}</span>
+                   </div>
+                   <div class="mb-3">
+                       <strong>วันที่สั่งซื้อ:</strong> 
+                       <span class="text-muted">{{ order.created_at|date:"d/m/Y H:i" }}</span>
+                   </div>
+                   {% if order.buyer_message %}
+                   <div class="mb-3">
+                       <strong>ข้อความถึงผู้ขาย:</strong>
+                       <span class="text-muted">{{ order.buyer_message }}</span>
+                   </div>
+                   {% endif %}
+                   
+                   {% if order.status == 'pending' %}
+                    <div class="mb-3">
+                        <form method="POST">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <strong>สถานะ:</strong> 
+                                        <span class="text-muted">{{ order.get_status_display }}</span>
+                                        <select class="form-select" name="status" id="status_select">
+                                            <option value="pending" {% if order.status == 'pending' %}selected{% endif %}>รอดำเนินการ</option>
+                                            {% if order.delivery_method == 'store' %}
+                                                <option value="pickup" {% if order.status == 'pickup' %}selected{% endif %}>สินค้าพร้อมรับ</option>
+                                            {% else %}
+                                                <option value="shipped" {% if order.status == 'shipped' %}selected{% endif %}>กำลังจัดส่ง</option>
+                                            {% endif %}
+                                            <option value="cancelled" {% if order.status == 'cancelled' %}selected{% endif %}>ยกเลิก</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- ช่องกรอกเลขติดตามพัสดุ (แสดงเมื่อสถานะเป็น "กำลังจัดส่ง") -->
+                                    <div class="mb-3" id="tracking_number_field" style="display: none;">
+                                        <label for="tracking_number">เลขติดตามพัสดุ:</label>
+                                        <input type="text" class="form-control" name="tracking_number" value="{{ order.tracking_number }}">
+                                    </div>
+                
+                                    <!-- ช่องกรอกเหตุผลการยกเลิก (แสดงเมื่อสถานะเป็น "ยกเลิก") -->
+                                    <div class="mb-3" id="cancellation_reason_field" style="display: none;">
+                                        <label for="cancellation_reason">เหตุผลในการยกเลิก:</label>
+                                        <textarea class="form-control" name="cancellation_reason" rows="3">{{ order.cancellation_reason }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary">ยืนยัน</button>
+                        </form>
+                    </div>
+                   {% else %}
+                        <div class="mb-3">
+                            <strong>สถานะ:</strong> 
+                            <span class="text-muted">{{ order.get_status_display }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>เลขติดตาม:</strong> 
+                            <span class="text-muted">{{ order.tracking_number }}</span>
+                        </div>
+                   {% endif %}
+               </div>
+               <div class="col-md-6">
+                   <div class="mb-3">
+                       <strong>ราคารวม:</strong> 
+                       <span class="text-danger fw-bold">{{ order.total_price }} บาท</span>
+                   </div>
+                   <div class="mb-3">
+                       <strong>วิธีการจัดส่ง:</strong>
+                       <span class="text-muted">
+                           {% if order.delivery_method == 'home' %}
+                               จัดส่งถึงบ้าน
+                           {% else %}
+                               รับสินค้าที่คณะ
+                           {% endif %}
+                       </span>
+                   </div>
+               </div>
+           </div>
+
+           <div class="row mb-3">
+               <div class="col-12">
+                   <strong>ที่อยู่จัดส่ง:</strong> 
+                   <span class="text-muted">{{ order.shipping_address|default:"-" }}</span>
+               </div>
+           </div>
+
+           <div class="row mb-3">
+               <div class="col-12">
+                   <strong>สลิปโอนเงิน:</strong>
+                   {% if order.payment_slip %}
+                       <a href="{{ order.payment_slip.url }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                           ดูสลิป
+                       </a>
+                   {% else %}
+                       <span class="text-muted">ไม่มีสลิป</span>
+                   {% endif %}
+               </div>
+           </div>
+
+           <h3 class="mt-4 mb-3">สินค้าที่สั่งซื้อ</h3>
+           <div class="table-responsive">
+               <table class="table table-striped table-hover">
+                   <thead>
+                       <tr>
+                           <th>รูปสินค้า</th>
+                           <th>สินค้า</th>
+                           <th>จำนวน</th>
+                           <th>Size</th>
+                           <th>ราคาต่อชิ้น</th>
+                       </tr>
+                   </thead>
+                   <tbody>
+                       {% for item in order.items.all %}
+                       <tr>
+                           <td>
+                               <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-thumbnail" style="max-width: 100px;">
+                           </td>
+                           <td>{{ item.product.name }}</td>
+                           <td>{{ item.quantity }} ชิ้น</td>
+                           <td>
+                               {% if item.size %}
+                                   {{ item.size }}
+                               {% else %}
+                                   -
+                               {% endif %}
+                           </td>
+                           <td>{{ item.price|floatformat:2 }} บาท</td>
+                       </tr>
+                       {% endfor %}
+                   </tbody>
+               </table>
+           </div>
+       </div>
+   </div>
+</div>
+{% block script %}
+<script>
+    // ฟังก์ชันแสดง/ซ่อนช่องกรอกข้อมูล
+    function toggleFields() {
+        const status = document.getElementById("status_select").value;
+        const trackingField = document.getElementById("tracking_number_field");
+        const cancellationField = document.getElementById("cancellation_reason_field");
+
+        if (status === "shipped") {
+            trackingField.style.display = "block";
+            cancellationField.style.display = "none";
+        } else if (status === "cancelled") {
+            trackingField.style.display = "none";
+            cancellationField.style.display = "block";
+        } else {
+            trackingField.style.display = "none";
+            cancellationField.style.display = "none";
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        toggleFields();
+        document.getElementById("status_select").addEventListener("change", toggleFields);
+    });
+</script>
+{% endblock %}
+{% endblock %}

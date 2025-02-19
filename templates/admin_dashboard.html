@@ -1,0 +1,47 @@
+<body>
+    <div id="sidebar" class="collapsed">
+        <div class="sidebar-header">
+            <h4 style="margin-top: 10px;"><i class="fas fa-user-shield"></i> Admin</h4>
+        </div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{% url 'manage_products' %}">
+                    <i class="fas fa-plus-circle"></i> จัดการร้านค้า
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{% url 'sales_report' %}">
+                    <i class="fas fa-plus-circle"></i> สถิติการขาย
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="{% url 'order_list' %}">
+                    <i class="fas fa-shopping-cart"></i> คำสั่งซื้อ
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-item nav-link" href="http://127.0.0.1:8000/admin/">
+                    <i class="fas fa-cogs"></i> จัดการหลังบ้าน
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div id="content" class="collapsed">
+        <button id="toggleSidebar" class="btn btn-primary mt-3"> Admin</button>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            const toggleSidebar = document.getElementById('toggleSidebar');
+
+            // ตรวจสอบว่าองค์ประกอบทั้งหมดมีอยู่จริง
+            if (sidebar && content && toggleSidebar) {
+                toggleSidebar.addEventListener('click', function() {
+                    sidebar.classList.toggle('collapsed');
+                    content.classList.toggle('collapsed');
+                });
+            }
+        });
+    </script>
+</body>

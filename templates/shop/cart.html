@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}ตะกร้าสินค้า{% endblock %}
+
+{% block content %}
+<!-- {% if messages %}
+    <div class="alert alert-dismissible fade show mt-3">
+        {%  for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %} -->
+<div class="container">
+    <span><h2 class="mb-4">ตะกร้าสินค้าของคุณ</h2></span>
+    {% if cart.items.all %}
+        <!-- สำหรับหน้าจอใหญ่ (ตาราง) -->
+        <div class="table-responsive d-none d-lg-block">
+            <table class="table table-bordered w-100">
+                <thead class="thead-light">
+                    <tr>
+                        <th>รูปสินค้า</th>
+                        <th>สินค้า</th>
+                        <th>ราคา</th>
+                        <th>จำนวน</th>
+                        <th>Size</th>
+                        <th>รวม</th>
+                        <th>จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart.items.all %}
+                    <tr>
+                        <td>
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" width="100" class="img-fluid">
+                        </td>
+                        <td>{{ item.product.name }}</td>
+                        <td>{{ item.product.price }} บาท</td>
+                        <td>
+                            <form method="post" action="{% url 'update_cart_item' item.id %}" class="d-flex align-items-center">
+                                {% csrf_token %}
+                                <div class="input-group me-2" style="max-width: 120px;">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="changeQuantity(this, -1)">-</button>
+                                    <input type="text" name="quantity" value="{{ item.quantity }}" class="form-control text-center">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="changeQuantity(this, 1)">+</button>
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            {% if item.product.category == 'clothing' %}
+                                <form method="post" action="{% url 'update_cart_item' item.id %}">
+                                    {% csrf_token %}
+                                    <select name="size" class="form-select" onchange="this.form.submit()">
+                                        <option value="">เลือกขนาด</option>
+                                        <option value="S" {% if item.size == "S" %}selected{% endif %}>S</option>
+                                        <option value="M" {% if item.size == "M" %}selected{% endif %}>M</option>
+                                        <option value="L" {% if item.size == "L" %}selected{% endif %}>L</option>
+                                        <option value="XL" {% if item.size == "XL" %}selected{% endif %}>XL</option>
+                                        <option value="XXL" {% if item.size == "XXL" %}selected{% endif %}>XXL</option>
+                                    </select>
+                                </form>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{{ item.total_price }} บาท</td>
+                        <td>
+                            <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-sm btn-danger btn-remove">ลบ</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- สำหรับหน้าจอเล็ก (Card Layout) -->
+        <div class="d-lg-none">
+            {% for item in cart.items.all %}
+            <div class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-4">
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="img-fluid rounded-start">
+                    </div>
+                    <div class="col-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item.product.name }}</h5>
+                            <p class="card-text">ราคา: {{ item.product.price }} บาท</p>
+                            
+                            <!-- Form ปรับจำนวนสินค้า สำหรับ Mobile -->
+                            <form method="post" action="{% url 'update_cart_item' item.id %}" class="d-flex align-items-center mb-2">
+                                {% csrf_token %}
+                                <div class="input-group me-2" style="max-width: 150px;">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="changeQuantity(this, -1)">-</button>
+                                    <input type="text" name="quantity" value="{{ item.quantity }}" class="form-control text-center">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="changeQuantity(this, 1)">+</button>
+                                </div>
+                            </form>
+                            
+                            {% if item.product.category == 'clothing' %}
+                            <form method="post" action="{% url 'update_cart_item' item.id %}" class="mb-2">
+                                {% csrf_token %}
+                                <select name="size" class="form-select" onchange="this.form.submit()">
+                                    <option value="">เลือกขนาด</option>
+                                    <option value="S" {% if item.size == "S" %}selected{% endif %}>S</option>
+                                    <option value="M" {% if item.size == "M" %}selected{% endif %}>M</option>
+                                    <option value="L" {% if item.size == "L" %}selected{% endif %}>L</option>
+                                    <option value="XL" {% if item.size == "XL" %}selected{% endif %}>XL</option>
+                                    <option value="XXL" {% if item.size == "XXL" %}selected{% endif %}>XXL</option>
+                                </select>
+                            </form>
+                            {% endif %}
+                            
+                            <div class="mb-2">
+                                <strong>รวม:</strong> {{ item.total_price }} บาท
+                            </div>
+                            <a href="{% url 'remove_from_cart' item.id %}" class="btn btn-danger btn-sm btn-remove">ลบ</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="text-end mt-4">
+            <h4>ยอดรวมทั้งหมด: {{ cart.total_price }} บาท</h4>
+            <a href="{% url 'purchase_cart_items' %}" class="btn btn-primary btn-lg mt-3">ดำเนินการชำระเงิน</a>
+        </div>
+    {% else %}
+        <p class="text-muted">ตะกร้าของคุณว่างเปล่า</p>
+        <a href="{% url 'product_list' %}" class="btn btn-info">เลือกซื้อสินค้า</a>
+    {% endif %}
+</div>
+
+<!-- SweetAlert2 สำหรับปุ่มลบ -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // ดักจับปุ่มลบสินค้า
+    document.querySelectorAll('.btn-remove').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = this.getAttribute('href');
+            Swal.fire({
+                title: "คุณแน่ใจหรือไม่?",
+                text: "เมื่อลบแล้วจะไม่สามารถกู้คืนได้!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: "ใช่, ลบเลย!",
+                cancelButtonText: "ยกเลิก"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+        });
+    });
+
+    // ฟังก์ชันสำหรับปรับจำนวนสินค้าและส่ง form อัตโนมัติ
+    function changeQuantity(button, delta) {
+        var form = button.closest('form');
+        var qtyInput = form.querySelector('input[name="quantity"]');
+        var currentVal = parseInt(qtyInput.value) || 0;
+        var newVal = Math.max(1, currentVal + delta);
+        qtyInput.value = newVal;
+        form.submit();
+    }
+</script>
+{% if messages %}
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+    {% for message in messages %}
+    Swal.fire({
+        icon: "{{ message.tags }}",  // เช่น success, error, warning
+        title: "{{ message|escapejs }}",
+        showConfirmButton: false,
+        timer: 1000
+    });
+    {% endfor %}
+});
+</script>
+{% endif %}
+
+{% endblock %}

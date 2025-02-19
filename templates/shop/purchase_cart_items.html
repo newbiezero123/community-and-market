@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block title %}ยืนยันการสั่งซื้อ{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">ยืนยันการสั่งซื้อ</h3>
+                </div>
+                <div class="card-body">
+                    <!-- รายละเอียดสินค้า -->
+                    <h4 class="text-primary">รายละเอียดสินค้า</h4>
+                    <div class="table-responsive d-none d-md-table w-100">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>รูปสินค้า</th>
+                                    <th>สินค้า</th>
+                                    <th>ราคา</th>
+                                    <th>จำนวน</th>
+                                    <th>Size</th>
+                                    <th>รวม</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart.items.all %}
+                                <tr>
+                                    <td>
+                                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" width="100">
+                                    </td>
+                                    <td>{{ item.product.name }}</td>
+                                    <td>{{ item.product.price }} บาท</td>
+                                    <td>{{ item.quantity }} ชิ้น</td>
+                                    <td>
+                                        {% if item.product.category == 'clothing' and item.size %}
+                                            {{ item.size }}
+                                        {% elif item.product.category == 'clothing' %}
+                                            -
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ item.total_price }} บาท</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Layout สำหรับมือถือ -->
+                    <div class="d-md-none">
+                        {% for item in cart.items.all %}
+                        <div class="border rounded p-3 mb-3">
+                            <div class="mb-2">
+                                <strong>รูปสินค้า:</strong><br>
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" width="100">
+                            </div>
+                            <div class="mb-2">
+                                <strong>สินค้า:</strong> {{ item.product.name }}
+                            </div>
+                            <div class="mb-2">
+                                <strong>ราคา:</strong> {{ item.product.price }} บาท
+                            </div>
+                            <div class="mb-2">
+                                <strong>จำนวน:</strong> {{ item.quantity }} ชิ้น
+                            </div>
+                            <div class="mb-2">
+                                <strong>Size:</strong>
+                                {% if item.product.category == 'clothing' and item.size %}
+                                    {{ item.size }}
+                                {% elif item.product.category == 'clothing' %}
+                                    -
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </div>
+                            <div>
+                                <strong>รวม:</strong> {{ item.total_price }} บาท
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- ฟอร์มคำสั่งซื้อ -->
+                    <h4 class="text-primary">ข้อมูลการสั่งซื้อ</h4>
+                    <!-- ฟิลด์ข้อความถึงผู้ขาย -->
+                    <div class="mb-3">
+                        <label for="id_buyer_message" class="form-label">ข้อความถึงผู้ขาย</label>
+                        {{ form.buyer_message|add_class:"form-control" }}
+                    </div>
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+
+                        <!-- ตัวเลือกการจัดส่ง -->
+                        <div class="mb-3">
+                            <label class="form-label">วิธีการจัดส่ง</label><br>
+                            <div class="btn-group" role="group">
+                                <input type="radio" class="btn-check" name="delivery_method" id="storePickup" value="store" checked onclick="toggleDelivery(false)">
+                                <label class="btn btn-outline-primary" for="storePickup">รับที่ร้าน</label>
+
+                                <input type="radio" class="btn-check" name="delivery_method" id="homeDelivery" value="home" onclick="toggleDelivery(true)">
+                                <label class="btn btn-outline-primary" for="homeDelivery">จัดส่งถึงบ้าน</label>
+                            </div>
+                        </div>
+
+                        <!-- แสดงที่อยู่ (ถ้ามี) -->
+                        <div id="addressSection" style="display:none;">
+                            <h5 class="text-success">ที่อยู่จัดส่ง</h5>
+                            {% if user_address %}
+                                <p>{{ user_address.name }}<br>
+                                {{ user_address.street }}, {{ user_address.city }}<br>
+                                {{ user_address.state }}, {{ user_address.zip_code }}<br>
+                                {{ user_address.country }}<br>{{ user_address.phone }}</p>
+                            {% else %}
+                                <p class="text-danger">คุณยังไม่มีที่อยู่ โปรดเพิ่มที่อยู่ในโปรไฟล์ของคุณ</p>
+                            {% endif %}
+                            <a href="{% url 'manage_address' %}" class="btn btn-primary">แก้ไขที่อยู่</a>
+                        </div>
+
+                        <label for="id_payment_slip" class="form-label">อัพโหลดสลิปการโอนเงิน</label>
+                        <div class="input-group">
+                            <label class="btn btn-outline-secondary" for="id_payment_slip">
+                                <i>{{ form.payment_slip }}</i>
+                            </label>
+                        </div>
+
+                        <!-- แสดงราคารวม -->
+                        <div class="mb-3">
+                            <p><strong>ราคารวม:</strong> <span id="totalPrice">{{ total_price_with_delivery }}</span> บาท</p>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg rounded-pill shadow-sm px-4 py-2">
+                            <i class="fas fa-check-circle me-2"></i>ยืนยันการสั่งซื้อ
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript สำหรับการแสดง/ซ่อนที่อยู่ และคำนวณราคาทั้งหมด -->
+<script>
+    const productPrice = parseFloat("{{ total_price }}");  // ราคาเริ่มต้นของสินค้า
+    const deliveryFee = 50;  // ค่าจัดส่ง
+
+    function toggleDelivery(isHomeDelivery) {
+        const addressSection = document.getElementById("addressSection");
+        const totalPriceElement = document.getElementById("totalPrice");
+
+        // แสดงหรือซ่อนที่อยู่
+        addressSection.style.display = isHomeDelivery ? "block" : "none";
+
+        // คำนวณราคารวม
+        let totalPrice = productPrice;
+        if (isHomeDelivery) {
+            totalPrice += deliveryFee;
+        }
+        totalPriceElement.innerText = totalPrice.toFixed(2);
+    }
+
+    // ตรวจสอบการอัพโหลดสลิปก่อนส่งฟอร์ม
+    document.querySelector('form').addEventListener('submit', function (e) {
+        const paymentSlip = document.getElementById("id_payment_slip").files[0]; // ไฟล์ที่อัพโหลด
+        if (!paymentSlip) {
+            e.preventDefault(); // ยกเลิกการส่งฟอร์ม
+            alert("กรุณาอัพโหลดสลิปการโอนเงินก่อนยืนยันการสั่งซื้อ");
+        }
+    });
+</script>
+{% endblock %}

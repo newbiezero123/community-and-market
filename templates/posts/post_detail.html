@@ -1,0 +1,202 @@
+<!-- templates/posts/post_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ post.title }}{% endblock %}
+
+{% block content %}
+<style>
+    /* พื้นฐาน */
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Sarabun', sans-serif;
+    }
+    /* โพสต์ */
+    .post-container {
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 2rem;
+        margin-top: 2rem;
+    }
+    .post-author {
+        font-size: 0.9rem;
+        color: #888;
+        margin-bottom: 0.5rem;
+    }
+    .post-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1.5rem;
+        color: #333;
+        word-break: break-word; /* ป้องกันการทะลุกรอบ */
+    }
+    .post-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        margin-bottom: 2rem;
+        word-break: break-word; /* ป้องกันการทะลุกรอบ */
+    }
+    .post-actions a,
+    .post-actions form {
+        margin-right: 0.5rem;
+    }
+    /* คอมเม้น */
+    .comment-section {
+        margin-top: 2rem;
+    }
+    .comment-card {
+        background-color: #f9f9f9;
+        border: 1px solid #eee;
+        border-radius: 5px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+    .comment-author {
+        font-weight: bold;
+        color: #007bff;
+    }
+    .comment-date {
+        font-size: 0.85rem;
+        color: #666;
+    }
+    .comment-content {
+        margin-top: 0.5rem;
+        word-break: break-word;
+    }
+    /* ฟอร์มคอมเม้น */
+    .comment-form {
+        margin-top: 2rem;
+    }
+    /* Prompt สำหรับ login */
+    .login-prompt {
+        background-color: #f1f1f1;
+        padding: 1.5rem;
+        border-radius: 5px;
+        text-align: center;
+    }
+</style>
+
+<div class="container">
+    <div class="post-container">
+        <!-- หัวโพสต์ -->
+        <div class="post-author">
+            <i class="fas fa-user"></i> โพสโดย: {{ post.author.username }} | {{ post.created_at|date:"d M Y, H:i" }}
+        </div>
+        <h1 class="post-title">{{ post.title }}</h1>
+        <div class="post-content">
+            {{ post.content|linebreaks }}
+        </div>
+        
+        <!-- ปุ่มแก้ไข/ลบโพสต์ เฉพาะเมื่อผู้ใช้เข้าสู่ระบบและเป็นเจ้าของโพสต์หรือ superuser -->
+            {% if user.is_authenticated %}
+            {% if post.author == user or user.is_superuser %}
+                <div class="post-actions mb-4">
+                    <a href="{% url 'edit_post' post_id=post.pk %}" class="btn btn-warning btn-sm">แก้ไขโพสต์</a>
+                    <form method="POST" action="{% url 'delete_post' post_id=post.pk %}" style="display: inline;" onsubmit="confirmDeletePost(event, this)">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger btn-sm">ลบโพสต์</button>
+                    </form>
+                </div>
+            {% endif %}
+            {% endif %}
+
+        
+        <hr>
+        
+        <!-- คอมเม้น -->
+        <div class="comment-section">
+            <h4>ความคิดเห็นทั้งหมด</h4>
+            {% if comments %}
+                {% for comment in comments %}
+                    <div class="comment-card">
+                        <div class="comment-header">
+                            <div class="comment-author">{{ comment.author.username }}</div>
+                            <div class="comment-date">{{ comment.created_at|date:"d M Y, H:i" }}</div>
+                        </div>
+                        <div class="comment-content">
+                            {{ comment.content|linebreaks }}
+                        </div>
+                        {% if user.is_authenticated %}
+                            {% if comment.author == user or user.is_superuser %}
+                                <div class="mt-2">
+                                    <form method="POST" action="{% url 'delete_comment' comment_id=comment.id %}" style="display: inline;" onsubmit="confirmDelete(event, this)">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-danger">ลบคอมเมนต์</button>
+                                    </form>
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    ยังไม่มีความคิดเห็น
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- ฟอร์มเพิ่มคอมเม้น -->
+        {% if user.is_authenticated %}
+            <div class="comment-form">
+                <h4>เพิ่มความคิดเห็น</h4>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ comment_form.as_p }}
+                    <button type="submit" class="btn btn-primary">ส่งความคิดเห็น</button>
+                </form>
+            </div>
+        {% else %}
+            <div class="login-prompt">
+                กรุณา <a href="{% url 'login' %}" class="login-link">เข้าสู่ระบบ</a> เพื่อแสดงความคิดเห็น
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- สคริปต์ SweetAlert สำหรับยืนยันการลบคอมเม้นและโพสต์ -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmDelete(event, form) {
+        event.preventDefault();
+        Swal.fire({
+            title: "คุณแน่ใจหรือไม่?",
+            text: "คุณต้องการลบคอมเม้นนี้จริงๆ หรือไม่?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "ใช่",
+            cancelButtonText: "ยกเลิก"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+
+    function confirmDeletePost(event, form) {
+        event.preventDefault();
+        Swal.fire({
+            title: "คุณแน่ใจหรือไม่?",
+            text: "คุณต้องการลบโพสต์นี้จริงๆ หรือไม่?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "ใช่",
+            cancelButtonText: "ยกเลิก"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+</script>
+
+{% endblock %}

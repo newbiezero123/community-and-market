@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}สมัครสมาชิก{% endblock %}
+
+{% block content %}
+<style>
+    .login-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        padding: 40px;
+        margin-top: 20px;
+    }
+    
+    .login-title {
+        color: #333;
+        font-size: 28px;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-control {
+        height: 45px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        padding: 10px 15px;
+        font-size: 16px;
+        transition: all 0.3s;
+    }
+    
+    .form-control:focus {
+        border-color: #530202;
+        box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25);
+    }
+    
+    .btn-login {
+        background: linear-gradient(135deg, #ff0000, #ff6479);
+        border: none;
+        border-radius: 8px;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        height: 45px;
+        width: 100%;
+        margin-top: 10px;
+        transition: all 0.3s;
+    }
+    
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .brand-logo {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .brand-logo img {
+        width: 80px;
+        height: auto;
+    }
+
+    label {
+        font-weight: 500;
+        color: #333;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .alert-danger {
+        background-color: rgba(255, 0, 0, 0.1);
+        border: 1px solid rgba(255, 0, 0, 0.2);
+        color: #dc3545;
+        padding: 8px;
+        border-radius: 4px;
+        margin-top: 5px;
+        font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="email"] {
+        height: 45px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        padding: 10px 15px;
+        font-size: 16px;
+        transition: all 0.3s;
+        width: 100%;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus,
+    input[type="email"]:focus {
+        border-color: #530202;
+        box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25);
+        outline: none;
+    }
+</style>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="login-card">
+                <div class="brand-logo">
+                </div>
+                <h2 class="login-title">SIGN UP</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        {% if field.name == 'major' %}
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}">สาขา</label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="alert alert-danger">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            <div class="form-group">
+                                {{ field.label_tag }}
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="alert alert-danger">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    <button type="submit" class="btn btn-login">สมัครสมาชิก</button>
+                </form>
+                <div class="text-center mt-3">
+                    <a href="{% url 'login' %}" class="text-muted">เข้าสู่ระบบ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

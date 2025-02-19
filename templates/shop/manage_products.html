@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}จัดการสินค้า{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1 class="text-center mb-4">จัดการสินค้า</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <script>
+                Swal.fire({
+                    icon: "{{ message.tags }}",
+                    title: "{{ message }}",
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            </script>
+        {% endfor %}
+    {% endif %}
+
+    <div class="d-flex justify-content-end mb-3">
+        <a href="{% url 'add_product' %}" class="btn btn-success">
+            <i class="fas fa-plus"></i> เพิ่มสินค้า
+        </a>
+    </div>
+
+    <!-- Wrapper table ด้วย .table-responsive เพื่อความ responsive -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>รูปภาพ</th>
+                    <th>ชื่อสินค้า</th>
+                    <th>ประเภทสินค้า</th>
+                    <th>ราคา</th>
+                    <th>สต็อก</th>
+                    <th>การจัดการ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" class="img-fluid" style="width:80px; height:80px; object-fit: cover;">
+                        {% else %}
+                            <span class="text-muted">ไม่มีรูป</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.get_category_display }}</td>
+                    <td>{{ product.price }} บาท</td>
+                    <td>{{ product.stock }} ชิ้น</td>
+                    <td>
+                        <a href="{% url 'edit_product' product.id %}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i> แก้ไข
+                        </a>
+                        <form method="POST" action="{% url 'delete_product' product.id %}" style="display: inline;" onsubmit="confirmDelete(event, this)">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> ลบ
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-muted">ไม่มีสินค้าในระบบ</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function confirmDelete(event, form) {
+        event.preventDefault();
+        Swal.fire({
+            title: "คุณแน่ใจหรือไม่?",
+            text: "เมื่อลบแล้วจะไม่สามารถกู้คืนได้!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "ใช่, ลบเลย!",
+            cancelButtonText: "ยกเลิก"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                form.submit();
+            }
+        });
+    }
+</script>
+{% endblock %}
