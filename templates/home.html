@@ -1,68 +1,827 @@
 {% extends 'base.html' %}
 
-{% block title %}หน้าแรก{% endblock %}
+{% block title %}หน้าแรก | เว็บไซต์ของเรา{% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- {% if user.is_authenticated %}
-        <h2>คุณเข้าสู่ระบบในชื่อ {{ user.username }}</h2>
-    {% else %}
-        <h2>กรุณาเข้าสู่ระบบหรือสมัครสมาชิกเพื่อใช้งาน</h2>
-    {% endif %} -->
-    <div id="carouselExampleCaptions" class="carousel slide" data-bs-ride="carousel" data-bs-interval="3000">
-        <div class="carousel-indicators">
-          <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-          <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
-          <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
-        </div>
-        <div class="carousel-inner">
-          <div class="carousel-item active">
-            <img src="/media/15.png" class="d-block w-100" alt="Local Image">
-            <div class="carousel-caption d-none d-md-block">
-              <!--<h5>First slide label</h5>
-              <p>Some representative placeholder content for the first slide.</p> -->
-            </div>
-          </div>
-          <div class="carousel-item">
-            <img src="/media/15.png" class="d-block w-100" alt="Local Image">
-            <div class="carousel-caption d-none d-md-block">
-             <!-- <h5>Second slide label</h5>
-              <p>Some representative placeholder content for the second slide.</p>-->
-            </div>
-          </div>
-          <div class="carousel-item">
-            <img src="/media/15.png" class="d-block w-100" alt="Local Image">
-            <div class="carousel-caption d-none d-md-block">
-             <!-- <h5>Third slide label</h5>
-              <p>Some representative placeholder content for the third slide.</p>-->
-            </div>
-          </div>
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
-          <span class="carousel-control-next-icon" aria-hidden="true"></span>
-          <span class="visually-hidden">Next</span>
-        </button>
-      </div>
-
-      <div class="container">
-        <h2 class="mt-4">โพสต์ล่าสุด</h2>
-        {% for post in latest_posts %}
-            <div class="card mt-3">
-                <div class="card-body">
-                    <div>
-                        โพสต์โดย {{ post.author.username }} เมื่อ {{ post.created_at|date:"d M Y, H:i" }}
+<!-- Hero Section -->
+<section class="hero-section py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                {% if user.is_authenticated %}
+                    <p class="display-4 fw-bold text-primary">ยินดีต้อนรับ <span class="text-dark">{{ user.username }}</span>!</p>
+                    <p class="lead mt-3">ค้นพบเนื้อหาที่น่าสนใจและแบ่งปันความรู้ด้านวิศวกรรมกับชุมชนของเรา</p>
+                    <div class="mt-4">
+                        <a href="{% url 'create_post' %}" class="btn btn-primary btn-lg me-2"><i class="bi bi-plus-circle me-2"></i>สร้างโพสต์ใหม่</a>
+                        <a href="{% url 'profile' %}" class="btn btn-outline-secondary btn-lg"><i class="bi bi-person me-2"></i>โปรไฟล์ของฉัน</a>
                     </div>
-                    <h5 class="card-title">{{ post.title|truncatechars:100 }}</h5>
-                    <a href="{% url 'post_detail' post.id %}" class="btn btn-primary">อ่านเพิ่มเติม</a>
+                {% else %}
+                    <h4 class="display-6 fw-bold text-primary">ชุมชนนักวิศวกรรม <span class="text-accent">แห่งอนาคต</span></h4>
+                    <p class="lead mt-3">เข้าร่วมกับเราเพื่อแบ่งปันความรู้ ค้นพบแนวคิดใหม่ และสร้างเครือข่ายในวงการวิศวกรรม</p>
+                    <div class="mt-4">
+                        <a href="{% url 'login' %}" class="btn btn-primary btn-lg me-2"><i class="bi bi-box-arrow-in-right me-2"></i>เข้าสู่ระบบ</a>
+                        <a href="{% url 'signup' %}" class="btn btn-outline-secondary btn-lg"><i class="bi bi-person-plus me-2"></i>สมัครสมาชิก</a>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <img src="/media/1.png" class="img-fluid rounded-circle hero-image shadow-lg" alt="Engineering Students">
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Featured Carousel Section -->
+<section class="carousel-section py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="section-title text-center mb-4">ประกาศจากทางคณะ</h2>
+                <div id="carouselExampleCaptions" class="carousel slide rounded shadow overflow-hidden" data-bs-ride="carousel" data-bs-interval="5000">
+                    <div class="carousel-indicators">
+                        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                        <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                    </div>
+                    <div class="carousel-inner">
+                        <div class="carousel-item active position-relative">
+                            <img src="/media/cover.png" class="d-block w-100" alt="Featured Image 1">
+                            <div class="carousel-caption bg-dark bg-opacity-50 rounded p-3 d-none d-md-block">
+                                <h3>ลงทะเบียนนักศึกษาใหม่</h3>
+                                <p>ลงทะเบียนปี2/68 ได้แล้ววันนี้คลิ็กเลย</p>
+                                <a href="#" class="btn btn-light btn-sm">อ่านเพิ่มเติม</a>
+                            </div>
+                        </div>
+                        <div class="carousel-item position-relative">
+                            <img src="/media/cover.png" class="d-block w-100" alt="Featured Image 2">
+                            <div class="carousel-caption bg-dark bg-opacity-50 rounded p-3 d-none d-md-block">
+                                <h3>งานกีฬาสีประจำคณะ</h3>
+                                <p>ขอเรียนเชิญนักศึกษาทุกท่านร่วมเข้างานกีฬาสี2/68</p>
+                                <a href="#" class="btn btn-light btn-sm">ดูกิจกรรมทั้งหมด</a>
+                            </div>
+                        </div>
+                        <div class="carousel-item position-relative">
+                            <img src="/media/cover.png" class="d-block w-100" alt="Featured Image 3">
+                            <div class="carousel-caption bg-dark bg-opacity-50 rounded p-3 d-none d-md-block">
+                                <h3>สินค้ามาใหม่</h3>
+                                <p>เลือกซื้อสินค้าสำหรับการเรียนรุ้ต่างๆ</p>
+                                <a href="#" class="btn btn-light btn-sm">ดูสินค้าทั้งหมด</a>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
                 </div>
             </div>
-        {% empty %}
-            <p>ยังไม่มีโพสต์</p>
-        {% endfor %}
+        </div>
     </div>
-</div>
+</section>
+
+<!-- Faculty Showcase Section (NEW) -->
+<section class="faculty-section py-5">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">สาขาวิชาของเรา</h2>
+            <p class="section-subtitle">ค้นพบความเชี่ยวชาญด้านวิศวกรรมศาสตร์ที่หลากหลาย</p>
+        </div>
+        
+        <div class="faculty-slider">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="faculty-card">
+                        <div class="faculty-image">
+                            <img src="/media/com.png" alt="วิศวกรรมคอมพิวเตอร์">
+                            <div class="faculty-overlay">
+                                <a href="#" class="btn btn-sm btn-light">ดูรายละเอียด</a>
+                            </div>
+                        </div>
+                        <div class="faculty-content">
+                            <h4>วิศวกรรมคอมพิวเตอร์</h4>
+                            <p> เป็นศาสตร์ที่เกี่ยวข้องกับการออกแบบและสร้างเครื่องหรือระบบคอมพิวเตอร์ และ ระบบที่ใช้คอมพิวเตอร์ ศาสตร์นี้เกี่ยวข้องกับการศึกษาทางด้านฮาร์ดแวร์ ซอฟต์แวร์ การสื่อสาร </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="faculty-card">
+                        <div class="faculty-image">
+                            <img src="/media/indus.png" alt="วิศวกรรมไฟฟ้า">
+                            <div class="faculty-overlay">
+                                <a href="#" class="btn btn-sm btn-light">ดูรายละเอียด</a>
+                            </div>
+                        </div>
+                        <div class="faculty-content">
+                            <h4>วิศวกรรมอุตสาหการ</h4>
+                            <p>เป็นวิศวกรรมศาสตร์สาขาที่เกี่ยวกับการออกแบบ พัฒนา วางแผน ควบคุม การวิจัยดำเนินงาน จัดการและประเมินผล ระบบ โดยรวมซึ่งครอบคลุมปัจจัยทุก ๆ ด้านทั้ง บุคคล สารสนเทศ อุปกรณ์ พลังงาน วัสดุ สถานที่ เวลา</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="faculty-card">
+                        <div class="faculty-image">
+                            <img src="/media/civil.png" alt="วิศวกรรมโยธา">
+                            <div class="faculty-overlay">
+                                <a href="#" class="btn btn-sm btn-light">ดูรายละเอียด</a>
+                            </div>
+                        </div>
+                        <div class="faculty-content">
+                            <h4>วิศวกรรมโยธา</h4>
+                            <p>เป็นศาสตร์ของสาขาหนึ่งในทางด้านวิศวกรรมศาสตร์ ครอบคลุมการก่อสร้างตึก ตึกระฟ้า อาคาร สะพาน ถนน และระบบขนส่งอื่น ๆ รวมถึงระบบสาธารณูปโภคต่าง ๆ เช่น เขื่อน คลอง ตลอดจนการทำรังวัดในงานสำรวจและแผนที่ </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Latest Posts Section -->
+<section class="latest-posts py-5 bg-light">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h2 class="section-title">โพสต์ล่าสุด</h2>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="{% url 'post_list' %}" class="btn btn-outline-primary">ดูโพสต์ทั้งหมด</a>
+            </div>
+        </div>
+        
+        <div class="row">
+            {% for post in latest_posts %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm border-0 hover-shadow transition">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="avatar me-2">
+                                    {% if post.author.profile.avatar %}
+                                        <img src="{{ post.author.profile.avatar.url }}" class="rounded-circle" width="32" height="32" alt="{{ post.author.username }}">
+                                    {% else %}
+                                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                            {{ post.author.username|make_list|first|upper }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="small text-muted">
+                                    {{ post.author.username }} - {{ post.created_at|date:"d M Y, H:i" }}
+                                </div>
+                            </div>
+                            <h5 class="card-title">{{ post.title|truncatechars:60 }}</h5>
+                            <p class="card-text text-muted">{{ post.content|striptags|truncatechars:50 }}</p>
+                            <div class="d-flex justify-content-between align-items-center mt-3">
+                                <a href="{% url 'post_detail' post.id %}" class="btn btn-sm btn-primary">อ่านเพิ่มเติม</a>
+                                <div class="d-flex align-items-center">
+                                    <!-- <span class="me-3"><i class="bi bi-heart"></i> {{ post.likes.count }}</span> -->
+                                    <span><i class="bi bi-chat"></i> {{ post.comments.count }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info text-center py-5">
+                        <i class="bi bi-info-circle display-4 d-block mb-3"></i>
+                        <h4>ยังไม่มีโพสต์</h4>
+                        <p class="mb-0">เป็นคนแรกที่แบ่งปันเรื่องราวและความคิดเห็นกับชุมชนของเรา!</p>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'create_post' %}" class="btn btn-primary mt-3">เริ่มสร้างโพสต์แรกของคุณ</a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-primary mt-3">เข้าสู่ระบบเพื่อสร้างโพสต์</a>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section py-5">
+    <div class="container">
+        <h2 class="section-title text-center mb-4">หมวดหมู่ยอดนิยม</h2>
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="row g-4">
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% url 'post_list' %}" class="category-card text-decoration-none">
+                            <div class="card text-center h-100 border-0 shadow-sm hover-scale transition">
+                                <div class="card-body py-4">
+                                    <i class="bi bi-book display-4 text-primary mb-3"></i>
+                                    <h5 class="card-title">แจกแนวข้อสอบ</h5>
+                                    <p class="card-text small text-muted">2 โพสต์</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% url 'post_list' %}" class="category-card text-decoration-none">
+                            <div class="card text-center h-100 border-0 shadow-sm hover-scale transition">
+                                <div class="card-body py-4">
+                                    <i class="bi bi-chat-dots display-4 text-success mb-3"></i>
+                                    <h5 class="card-title">พูดคุยทั่วไป</h5>
+                                    <p class="card-text small text-muted">14 โพสต์</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% url 'post_list' %}" class="category-card text-decoration-none">
+                            <div class="card text-center h-100 border-0 shadow-sm hover-scale transition">
+                                <div class="card-body py-4">
+                                    <i class="bi bi-lightbulb display-4 text-warning mb-3"></i>
+                                    <h5 class="card-title">แจกชีต</h5>
+                                    <p class="card-text small text-muted">16 โพสต์</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a href="{% url 'post_list' %}" class="category-card text-decoration-none">
+                            <div class="card text-center h-100 border-0 shadow-sm hover-scale transition">
+                                <div class="card-body py-4">
+                                    <i class="bi bi-question-circle display-4 text-danger mb-3"></i>
+                                    <h5 class="card-title">นักศึกษาสอบถามอาจารย์</h5>
+                                    <p class="card-text small text-muted">8 โพสต์</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action Section -->
+<section class="cta-section py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 text-center text-lg-start">
+                <h2 class="mb-3">เข้าร่วมชุมชนของเราวันนี้</h2>
+                <p class="lead mb-lg-0">แบ่งปันความคิดเห็น ค้นพบเนื้อหาที่น่าสนใจ ซื้อสินค้าและอุปกรณ์สำหรับการเรียน</p>
+            </div>
+            <div class="col-lg-4 text-center text-lg-end mt-4 mt-lg-0">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'create_post' %}" class="btn btn-light btn-lg">สร้างโพสต์ใหม่</a>
+                {% else %}
+                    <a href="{% url 'signup' %}" class="btn btn-light btn-lg">สมัครสมาชิกฟรี</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CSS Styles -->
+<style>
+/* ====== GLOBAL STYLES ====== */
+:root {
+    --primary: #0d6efd;
+    --primary-dark: #0056b3;
+    --primary-light: #cfe2ff;
+    --secondary: #6c757d;
+    --success: #198754;
+    --warning: #ffc107;
+    --danger: #dc3545;
+    --info: #0dcaf0;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --white: #ffffff;
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+    --transition: all 0.3s ease;
+    --border-radius: 10px;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: var(--dark);
+}
+
+.section-title {
+    position: relative;
+    margin-bottom: 2rem;
+    font-weight: 700;
+    font-size: 2rem;
+}
+
+/* .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: var(--primary);
+    border-radius: 3px;
+} */
+
+.text-center .section-title::after {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.transition {
+    transition: var(--transition);
+}
+
+.object-fit-cover {
+    object-fit: cover;
+}
+
+/* ====== BUTTON STYLES ====== */
+.btn {
+    border-radius: 6px;
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-lg {
+    padding: 0.75rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    border: none;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.25);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(13, 110, 253, 0.35);
+}
+
+.btn-outline-primary {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.btn-light {
+    background: white;
+    color: var(--dark);
+    border: none;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-light:hover {
+    background: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+/* ====== HERO SECTION ====== */
+.hero-section {
+    padding: 5rem 0;
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 70%);
+    z-index: 0;
+}
+
+.hero-section h1, .hero-section p, .hero-section .mt-4 {
+    position: relative;
+    z-index: 1;
+}
+
+.text-accent {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.hero-image {
+    border: 8px solid white;
+    transition: all 0.5s ease;
+    box-shadow: var(--shadow);
+}
+
+.hero-image:hover {
+    transform: translateY(-10px) rotate(2deg);
+    box-shadow: var(--shadow-lg);
+}
+
+/* ====== CAROUSEL SECTION ====== */
+.carousel-section {
+    background-color: white;
+}
+
+.carousel {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+}
+
+.carousel-item img {
+    height: 400px;
+    object-fit: cover;
+}
+
+.carousel-caption {
+    bottom: 20px;
+    right: 20px;
+    left: 20px;
+    text-align: left;
+    border-radius: 8px;
+    backdrop-filter: blur(4px);
+}
+
+.carousel-indicators {
+    margin-bottom: 0.5rem;
+}
+
+.carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 5px;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.carousel-indicators button.active {
+    width: 30px;
+    border-radius: 10px;
+    background-color: white;
+}
+
+.carousel-control-prev, .carousel-control-next {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.carousel:hover .carousel-control-prev, 
+.carousel:hover .carousel-control-next {
+    opacity: 1;
+}
+
+.carousel-control-prev {
+    left: 20px;
+}
+
+.carousel-control-next {
+    right: 20px;
+}
+
+/* ====== FACULTY SECTION ====== */
+.faculty-section {
+    padding: 5rem 0;
+    background-color: white;
+}
+
+.section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.section-subtitle {
+    color: var(--secondary);
+    max-width: 700px;
+    margin: 1rem auto 0;
+    font-size: 1.1rem;
+}
+
+.faculty-card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    transition: var(--transition);
+    height: 100%;
+}
+
+.faculty-card:hover {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-lg);
+}
+
+.faculty-image {
+    position: relative;
+    overflow: hidden;
+    height: 350px;
+}
+
+.faculty-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.faculty-card:hover .faculty-image img {
+    transform: scale(1.1);
+}
+
+.faculty-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.faculty-card:hover .faculty-overlay {
+    opacity: 1;
+}
+
+.faculty-content {
+    padding: 1.5rem;
+}
+
+.faculty-content h4 {
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--dark);
+    font-size: 1.25rem;
+}
+
+.faculty-content p {
+    color: var(--secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 0;
+}
+
+/* ====== LATEST POSTS SECTION ====== */
+.latest-posts {
+    padding: 5rem 0;
+    background-color: var(--light);
+}
+
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    transition: var(--transition);
+}
+
+.hover-shadow:hover {
+    box-shadow: var(--shadow-lg) !important;
+    transform: translateY(-5px);
+}
+
+.avatar {
+    overflow: hidden;
+}
+
+.avatar img, .avatar div {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+}
+
+.card-title {
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    font-size: 1.15rem;
+    color: var(--dark);
+}
+
+.card-text {
+    margin-bottom: 1rem;
+    color: var(--secondary);
+    line-height: 1.6;
+}
+
+.alert-info {
+    background-color: #f0f9ff;
+    border-color: #cce5ff;
+    color: #0c5460;
+    border-radius: var(--border-radius);
+}
+
+/* ====== CATEGORIES SECTION ====== */
+.categories-section {
+    padding: 5rem 0;
+    background-color: white;
+}
+
+.category-card {
+    display: block;
+    text-decoration: none !important;
+    color: inherit;
+    height: 100%;
+}
+
+.category-card .card {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+    border: none;
+    height: 100%;
+}
+
+.category-card:hover .card {
+    transform: translateY(-10px);
+    box-shadow: var(--shadow);
+}
+
+.category-card i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    transition: var(--transition);
+}
+
+.category-card:hover i {
+    transform: scale(1.1);
+}
+
+.category-card .card-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.hover-scale {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-scale:hover {
+    transform: translateY(-10px);
+}
+
+/* ====== CTA SECTION ====== */
+.cta-section {
+    padding: 4rem 0;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.cta-section::before {
+    content: '';
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.cta-section::after {
+    content: '';
+    position: absolute;
+    bottom: -100px;
+    left: -100px;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.cta-section h2 {
+    font-weight: 700;
+    font-size: 2.25rem;
+    margin-bottom: 1rem;
+}
+
+.cta-section .lead {
+    font-size: 1.2rem;
+    opacity: 0.9;
+}
+.cta-section {
+    position: relative;
+}
+
+.cta-section .container {
+    position: relative;
+    z-index: 2; /* ให้ container อยู่เหนือกว่า pseudo-elements */
+}
+
+.cta-section .btn {
+    position: relative;
+    z-index: 3; /* ให้ปุ่มอยู่ชั้นบนสุด */
+}
+
+.cta-section::before,
+.cta-section::after {
+    z-index: 1; /* ให้ pseudo-elements อยู่ข้างล่าง */
+    pointer-events: none; /* ทำให้ไม่รับ mouse events */
+}
+
+/* ====== RESPONSIVE STYLES ====== */
+@media (max-width: 991.98px) {
+    .section-title {
+        font-size: 1.75rem;
+    }
+
+    .hero-section {
+        padding: 4rem 0;
+    }
+
+    .carousel-item img {
+        height: 350px;
+    }
+
+    .faculty-image {
+        height: 400px;
+    }
+
+    .cta-section h2 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .hero-section {
+        padding: 3rem 0;
+        text-align: center;
+    }
+
+    .carousel-item img {
+        height: 300px;
+    }
+
+    .faculty-image {
+        height: 380px;
+    }
+
+    .cta-section {
+        text-align: center;
+    }
+
+    .cta-section h2 {
+        font-size: 1.75rem;
+    }
+
+    .cta-section .lead {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .carousel-item img {
+        height: 250px;
+    }
+
+    .btn-lg {
+        padding: 0.5rem 1.25rem;
+        font-size: 1rem;
+    }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.5s ease forwards;
+}
+</style>
+
+<!-- Bootstrap Icons CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 {% endblock %}

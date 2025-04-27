@@ -4,60 +4,63 @@
 {% block title %}แก้ไขสินค้า{% endblock %}
 
 {% block content %}
-<div class="container py-3">
+<div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-9">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-warning text-white text-center">
-                    <h2 class="mb-0">แก้ไขสินค้า</h2>
+            <div class="card shadow-lg border-0 rounded-lg overflow-hidden">
+                <div class="card-header bg-gradient-warning text-white text-center py-4">
+                    <h2 class="mb-0">
+                        <i class="fas fa-edit me-2"></i>แก้ไขสินค้า
+                    </h2>
                 </div>
-                <div class="card-body">
-                    <form method="POST" enctype="multipart/form-data">
+                <div class="card-body p-4 p-md-5">
+                    <form method="POST" enctype="multipart/form-data" id="editProductForm">
                         {% csrf_token %}
 
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">ชื่อสินค้า</label>
-                            {{ form.name|add_class:"form-control" }}
-                        </div>
+                        {% for field in form %}
+                            <div class="mb-4">
+                                <label for="{{ field.id_for_label }}" class="form-label fw-bold text-dark">
+                                    {{ field.label }}
+                                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
 
-                        <div class="mb-5">
-                            <label class="form-label fw-bold">รายละเอียดสินค้า</label>
-                            {{ form.description|add_class:"form-control"|attr:"rows:3" }}
-                        </div>
+                                {% if field.name == "description" %}
+                                    {{ field|add_class:"form-control shadow-sm"|attr:"rows:3"|attr:"placeholder:ระบุรายละเอียดสินค้า..." }}
+                                {% elif field.name == "category" %}
+                                    {{ field|add_class:"form-select shadow-sm" }}
+                                {% elif field.name == "image" %}
+                                    <div class="text-center mb-3">
+                                        {% if form.instance.image %}
+                                            <img src="{{ form.instance.image.url }}" class="img-thumbnail rounded shadow-sm" 
+                                                 style="max-width: 250px; height: auto;" id="currentImage">
+                                        {% else %}
+                                            <div class="text-muted">ไม่มีรูปภาพปัจจุบัน</div>
+                                        {% endif %}
+                                    </div>
+                                    {{ field|add_class:"form-control shadow-sm" }}
+                                    <div class="mt-2" id="imagePreview"></div>
+                                {% else %}
+                                    {{ field|add_class:"form-control shadow-sm"|attr:"placeholder:กรอกข้อมูล" }}
+                                {% endif %}
 
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">ราคา</label>
-                                    {{ form.price|add_class:"form-control" }}
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">สต็อกสินค้า</label>
-                                    {{ form.stock|add_class:"form-control" }}
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">ประเภทสินค้า</label>
-                            {{ form.category|add_class:"form-select" }}
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">รูปภาพสินค้า</label>
-                            <div class="text-center">
-                                {% if form.instance.image %}
-                                    <img src="{{ form.instance.image.url }}" class="img-thumbnail mb-3" width="200">
+                                {% if field.errors %}
+                                    <div class="text-danger mt-1 animate__animated animate__shakeX">
+                                        {% for error in field.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
                                 {% endif %}
                             </div>
-                            {{ form.image|add_class:"form-control" }}
-                        </div>
+                        {% endfor %}
 
-                        <button type="submit" class="btn btn-warning w-100 fw-bold">
-                            <i class="fas fa-save"></i> อัปเดตสินค้า
-                        </button>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-warning btn-lg shadow-sm fw-bold">
+                                <i class="fas fa-save me-2"></i>อัปเดตสินค้า
+                            </button>
+                            <a href="{% url 'manage_products' %}" class="btn btn-outline-secondary btn-lg shadow-sm">
+                                <i class="fas fa-arrow-left me-2"></i>กลับไปหน้าจัดการ
+                            </a>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -65,15 +68,79 @@
     </div>
 </div>
 
+<!-- Custom Styles -->
 <style>
-    .form-control {
-        border-radius: 10px;
-        padding: 10px;
+    .bg-gradient-warning {
+        background: linear-gradient(45deg, #ffc107, #ffca2c);
     }
-    .btn-warning {
-        border-radius: 10px;
-        padding: 12px;
-        font-size: 18px;
+
+    .form-control, .form-select {
+        transition: all 0.3s ease;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: #ffc107;
+        box-shadow: 0 0 0 0.2rem rgba(255, 193, 7, 0.25);
+    }
+
+    .btn {
+        transition: all 0.3s ease;
+        border-radius: 0.5rem;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .card {
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .form-label {
+        font-size: 1.1rem;
+    }
+
+    .img-thumbnail {
+        transition: transform 0.2s ease;
+    }
+
+    .img-thumbnail:hover {
+        transform: scale(1.05);
     }
 </style>
+
+<!-- JavaScript for Image Preview -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const imageInput = document.querySelector('input[type="file"]');
+        const preview = document.getElementById('imagePreview');
+
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                preview.innerHTML = '';
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'img-thumbnail rounded mt-2 shadow-sm';
+                        img.style.maxWidth = '250px';
+                        img.style.height = 'auto';
+                        preview.appendChild(img);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

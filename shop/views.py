@@ -83,7 +83,7 @@ def purchase_item(request):
             )
             order_item.save()
             messages.success(request, "คำสั่งซื้อถูกสร้างเรียบร้อยแล้ว!")
-            return redirect('order_success')
+            return redirect('product_list')
     else:
         form = OrderForm()
     context = {
@@ -143,7 +143,7 @@ def purchase_cart_items(request):
                 cart_item.product.save()
             cart.items.all().delete()
             messages.success(request, "คำสั่งซื้อของคุณถูกสร้างเรียบร้อยแล้ว!")
-            return redirect('order_success')
+            return redirect('product_list')
     else:
         form = OrderForm()
     return render(request, 'shop/purchase_cart_items.html', {
@@ -155,8 +155,6 @@ def purchase_cart_items(request):
         'total_price_with_delivery': total_price_with_delivery,
     })
 
-def order_success(request):
-    return render(request, 'shop/order_success.html')
 
 @staff_member_required
 def order_list(request):
@@ -319,17 +317,23 @@ def sales_report(request):
 
     sales_last_7_days = defaultdict(list)
     sales_data = OrderItem.objects.filter(order__created_at__date__gte=seven_days_ago) \
-        .values('order__created_at__date', 'product__name') \
+        .values('order__created_at__date', 'product__name', 'price') \
         .annotate(
             total_sales=Sum(ExpressionWrapper(F('price') * F('quantity'), output_field=DecimalField())),
             total_quantity=Sum('quantity')
         ).order_by('-order__created_at__date')
+    
     for sale in sales_data:
+        # คำนวณราคาต่อชิ้น (price per unit) โดยใช้ price เดิมจาก OrderItem
+        price_per_unit = sale['price']
+        
         sales_last_7_days[sale['order__created_at__date']].append({
             'product_name': sale['product__name'],
             'total_sales': sale['total_sales'],
-            'total_quantity': sale['total_quantity']
+            'total_quantity': sale['total_quantity'],
+            'price_per_unit': price_per_unit  # เพิ่มราคาต่อชิ้น
         })
+    
     return render(request, 'shop/sales_report.html', {
         'sales_today': sales_today,
         'sales_last_7_dayssum': sales_last_7_dayssum,

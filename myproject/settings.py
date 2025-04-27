@@ -21,6 +21,10 @@ ALLOWED_HOSTS = ['*']
 #ctr+r wf.msc
 #python manage.py runserver 0.0.0.0:8000
 
+#python manage.py runserver
+#myenv\Scripts\activate
+#http://127.0.0.1:8000/
+
 
 # Application definition
 
@@ -36,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'widget_tweaks',
     'accounts',
     'posts',

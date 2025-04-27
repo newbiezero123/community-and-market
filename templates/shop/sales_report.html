@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load humanize %}
 
 {% block title %}รายงานการขาย | Dashboard{% endblock %}
 
@@ -23,7 +24,7 @@
                         <h5 class="card-title mb-0 text-secondary">ยอดขายวันนี้</h5>
                     </div>
                     <p class="display-6 fw-bold text-primary mb-0">
-                        ฿{{ sales_today|floatformat:2 }}
+                        ฿{{ sales_today|floatformat:2|intcomma }}
                     </p>
                 </div>
             </div>
@@ -38,7 +39,7 @@
                         <h5 class="card-title mb-0 text-secondary">ยอดขาย 7 วันล่าสุด</h5>
                     </div>
                     <p class="display-6 fw-bold text-primary mb-0">
-                        ฿{{ sales_last_7_dayssum|floatformat:2 }}
+                        ฿{{ sales_last_7_dayssum|floatformat:2|intcomma }}
                     </p>
                 </div>
             </div>
@@ -53,7 +54,7 @@
                         <h5 class="card-title mb-0 text-secondary">ยอดขายเดือนนี้</h5>
                     </div>
                     <p class="display-6 fw-bold text-primary mb-0">
-                        ฿{{ sales_this_month|floatformat:2 }}
+                        ฿{{ sales_this_month|floatformat:2|intcomma }}
                     </p>
                 </div>
             </div>
@@ -74,6 +75,7 @@
                             <th class="py-3 text-secondary">วันที่</th>
                             <th class="py-3 text-secondary">ชื่อสินค้า</th>
                             <th class="py-3 text-secondary text-center">จำนวนที่ขาย</th>
+                            <th class="py-3 text-secondary text-center">ราคาต่อชิ้น</th>
                             <th class="py-3 text-secondary text-end">ยอดขายรวม</th>
                         </tr>
                     </thead>
@@ -86,7 +88,8 @@
                                 {% endif %}
                                 <td class="py-3">{{ sale.product_name }}</td>
                                 <td class="py-3 text-center">{{ sale.total_quantity }}</td>
-                                <td class="py-3 text-end fw-bold">฿{{ sale.total_sales|floatformat:2 }}</td>
+                                <td class="py-3 text-center">{{ sale.price_per_unit|floatformat:2|intcomma }}</td>
+                                <td class="py-3 text-end fw-bold">฿{{ sale.total_sales|floatformat:2|intcomma }}</td>
                             </tr>
                             {% endfor %}
                         {% empty %}

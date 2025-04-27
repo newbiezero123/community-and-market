@@ -2,7 +2,7 @@
     min-width: 250px;
     max-width: 250px;
     height: 100vh;
-    background-color: #343a40;
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
     color: white;
     transition: all 0.3s;
     position: fixed;
@@ -28,7 +28,7 @@
 
 .sidebar-header {
     padding: 10px;
-    background-color: #495057;
+    background: linear-gradient(135deg, #7c09f7 0%, #0c61f6 100%);
     text-align: center;
 }
 

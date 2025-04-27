@@ -65,7 +65,8 @@
                                 โพสต์โดย {{ post.author.username }} | 
                                 {{ post.created_at|date:"j F Y" }} | 
                                 หมวดหมู่: {{ post.category.name }} |
-                                จำนวนผู้เข้าชม: {{ post.view_count }}
+                                จำนวนความคิดเห็น: {{ post.comments.count }}|
+                                จำนวนผู้เข้าชม: {{ post.view_count }}|
                             </small>
                         </p>
                         <p class="card-text">{{ post.summary|truncatechars:100 }}</p>

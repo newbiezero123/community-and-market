@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="container py-5">
+<div class="container py-3">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm">
@@ -106,21 +106,88 @@
                             <a href="{% url 'manage_address' %}" class="btn btn-primary">แก้ไขที่อยู่</a>
                         </div>
 
-                        <label for="id_payment_slip" class="form-label">อัพโหลดสลิปการโอนเงิน</label>
-                        <div class="input-group">
-                            <label class="btn btn-outline-secondary" for="id_payment_slip">
-                                <i>{{ form.payment_slip }}</i>
-                            </label>
+                        <!-- ข้อมูลบัญชีธนาคาร -->
+                        <div class="card mb-4 border-success">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0"><i class="fas fa-university me-2"></i>ข้อมูลบัญชีธนาคาร</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p class="mb-1"><strong>ธนาคาร:</strong> ธนาคารกสิกรไทย</p>
+                                        <p class="mb-1"><strong>ชื่อบัญชี:</strong> มหาวิทยาลัยรามคำแหง</p>
+                                        <p class="mb-1"><strong>เลขที่บัญชี:</strong> <span class="text-success fw-bold">123-4-56789-0</span></p>
+                                        <p class="mb-0"><small class="text-muted">กรุณาโอนเงินก่อนอัพโหลดสลิป</small></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <img src="\media\payment.png" alt="QR Payment" class="img-fluid" style="max-height: 120px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- ข้อความเตือนให้อัพโหลดสลิป -->
+                        <div class="alert alert-warning mb-4" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                                <div>
+                                    <h5 class="alert-heading mb-1">กรุณาอัพโหลดสลิปการโอนเงิน</h5>
+                                    <p class="mb-0">การสั่งซื้อจะไม่สามารถดำเนินการได้หากไม่มีการอัพโหลดสลิปการโอนเงิน</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- อัพโหลดสลิป -->
+                        <div class="card mb-4 border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0"><i class="fas fa-receipt me-2"></i>อัพโหลดสลิปการโอนเงิน <span class="badge bg-danger">จำเป็น*</span></h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="custom-file-upload">
+                                    <div class="text-center border rounded p-4 mb-3 bg-light position-relative" id="drop-area">
+                                        <input type="file" name="payment_slip" id="id_payment_slip" class="position-absolute" style="opacity: 0; width: 100%; height: 100%; top: 0; left: 0; cursor: pointer;" accept="image/*" onchange="updateFileName(this)" required>
+                                        <i class="fas fa-cloud-upload-alt fa-3x text-primary mb-3"></i>
+                                        <p class="mb-0 fw-bold">คลิกที่นี่หรือลากไฟล์มาวางเพื่ออัพโหลดสลิป</p>
+                                        <small class="text-muted">รองรับไฟล์รูปภาพทุกประเภท</small>
+                                        <div id="upload-status" class="mt-2 d-none">
+                                            <span class="badge bg-danger">ยังไม่ได้อัพโหลดสลิป</span>
+                                        </div>
+                                        <div id="preview" class="mt-3 d-none">
+                                            <img id="img-preview" src="" alt="Preview" class="img-thumbnail" style="max-height: 200px;">
+                                            <p id="file-name" class="mb-0 mt-2"></p>
+                                            <div class="mt-2">
+                                                <span class="badge bg-success">อัพโหลดสลิปแล้ว</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-danger small" id="error-message"></div>
+                            </div>
                         </div>
 
                         <!-- แสดงราคารวม -->
-                        <div class="mb-3">
-                            <p><strong>ราคารวม:</strong> <span id="totalPrice">{{ product.price }}</span> บาท</p>
+                        <div class="mb-4 p-3 bg-light rounded">
+                            <div class="d-flex justify-content-between">
+                                <span>ราคาสินค้า:</span>
+                                <span>{{ product.price }} บาท</span>
+                            </div>
+                            <div class="d-flex justify-content-between" id="delivery-fee-row" style="display: none !important;">
+                                <span>ค่าจัดส่ง:</span>
+                                <span>50 บาท</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between fw-bold">
+                                <span>ราคารวมทั้งสิ้น:</span>
+                                <span class="text-success fs-5" id="totalPrice">{{ product.price }}</span> <span class="text-success fs-5">บาท</span>
+                            </div>
                         </div>
 
-                        <button type="submit" class="btn btn-success btn-lg rounded-pill shadow-sm px-4 py-2">
+                        <button type="submit" class="btn btn-success btn-lg rounded-pill shadow-sm px-4 py-2 w-100" id="submit-btn">
                             <i class="fas fa-check-circle me-2"></i>ยืนยันการสั่งซื้อ
                         </button>
+                        <div class="text-center mt-2">
+                            <small class="text-danger" id="submit-error" style="display: none;">กรุณาอัพโหลดสลิปการโอนเงินก่อนยืนยันการสั่งซื้อ</small>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -132,13 +199,23 @@
 <script>
     const productPrice = parseFloat("{{ product.price }}");  // ราคาเริ่มต้นของสินค้า
     const deliveryFee = 50;  // ค่าจัดส่ง
+    const uploadStatus = document.getElementById('upload-status');
+    const errorMessage = document.getElementById('error-message');
+    const submitError = document.getElementById('submit-error');
+    
+    // แสดงสถานะการอัพโหลดเมื่อโหลดหน้า
+    window.addEventListener('load', function() {
+        uploadStatus.classList.remove('d-none');
+    });
 
     function toggleDelivery(isHomeDelivery) {
         const addressSection = document.getElementById("addressSection");
         const totalPriceElement = document.getElementById("totalPrice");
+        const deliveryFeeRow = document.getElementById("delivery-fee-row");
 
         // แสดงหรือซ่อนที่อยู่
         addressSection.style.display = isHomeDelivery ? "block" : "none";
+        deliveryFeeRow.style.display = isHomeDelivery ? "flex !important" : "none !important";
 
         // คำนวณราคารวม
         let totalPrice = productPrice;
@@ -148,13 +225,89 @@
         totalPriceElement.innerText = totalPrice.toFixed(2);
     }
 
+    // แสดงตัวอย่างภาพและชื่อไฟล์เมื่ออัพโหลด
+    function updateFileName(input) {
+        const preview = document.getElementById('preview');
+        const imgPreview = document.getElementById('img-preview');
+        const fileName = document.getElementById('file-name');
+        const uploadStatus = document.getElementById('upload-status');
+        const errorMessage = document.getElementById('error-message');
+        const submitError = document.getElementById('submit-error');
+        
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            // ตรวจสอบขนาดไฟล์ (ไม่เกิน 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                errorMessage.textContent = "ขนาดไฟล์ต้องไม่เกิน 5MB";
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                imgPreview.src = e.target.result;
+                fileName.textContent = file.name;
+                preview.classList.remove('d-none');
+                uploadStatus.classList.add('d-none');
+                errorMessage.textContent = "";
+                submitError.style.display = "none";
+            }
+            
+            reader.readAsDataURL(file);
+        }
+    }
+
     // ตรวจสอบการอัพโหลดสลิปก่อนส่งฟอร์ม
     document.querySelector('form').addEventListener('submit', function (e) {
         const paymentSlip = document.getElementById("id_payment_slip").files[0]; // ไฟล์ที่อัพโหลด
         if (!paymentSlip) {
             e.preventDefault(); // ยกเลิกการส่งฟอร์ม
-            alert("กรุณาอัพโหลดสลิปการโอนเงินก่อนยืนยันการสั่งซื้อ");
+            submitError.style.display = "block";
+            document.getElementById('drop-area').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('drop-area').classList.add('border-danger');
+            setTimeout(() => {
+                document.getElementById('drop-area').classList.remove('border-danger');
+            }, 2000);
         }
     });
+
+    // Drag and drop functionality
+    const dropArea = document.getElementById('drop-area');
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+    
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+    
+    function highlight() {
+        dropArea.classList.add('border-primary');
+    }
+    
+    function unhighlight() {
+        dropArea.classList.remove('border-primary');
+    }
+    
+    dropArea.addEventListener('drop', handleDrop, false);
+    
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        const fileInput = document.getElementById('id_payment_slip');
+        
+        fileInput.files = files;
+        updateFileName(fileInput);
+    }
 </script>
 {% endblock %}

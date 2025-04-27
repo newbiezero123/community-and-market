@@ -1,30 +1,39 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
 {% block title %}เพิ่มสินค้า{% endblock %}
+
 {% block content %}
-<div class="container py-2">
+<div class="container py-5">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card shadow-lg border-0 rounded-lg">
-        <div class="card-header bg-primary text-white">
-          <h2 class="text-center my-2">เพิ่มสินค้าใหม่</h2>
+    <div class="col-lg-8 col-md-10">
+      <div class="card shadow-lg border-0 rounded-lg overflow-hidden">
+        <div class="card-header bg-gradient-primary text-white py-4">
+          <h2 class="text-center mb-0">
+            <i class="fas fa-box-open me-2"></i>เพิ่มสินค้าใหม่
+          </h2>
         </div>
-        <div class="card-body">
-          <form method="POST" enctype="multipart/form-data">
+        <div class="card-body p-4 p-md-5">
+          <form method="POST" enctype="multipart/form-data" id="productForm">
             {% csrf_token %}
             {% for field in form %}
-              <div class="mb-4">
-                <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
+              <div class="mb-4 position-relative">
+                <label for="{{ field.id_for_label }}" class="form-label fw-bold text-dark">
+                  {{ field.label }}
+                  {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                </label>
                 {% if field.name == "description" %}
-                  {{ field|add_class:"form-control" |attr:"rows:3" }}
+                  {{ field|add_class:"form-control shadow-sm"|attr:"rows:3"|attr:"placeholder:ระบุรายละเอียดสินค้า..." }}
+                {% elif field.name == "image" %}
+                  {{ field|add_class:"form-control shadow-sm" }}
+                  <div class="mt-2" id="imagePreview"></div>
                 {% else %}
-                  {{ field|add_class:"form-control" }}
+                  {{ field|add_class:"form-control shadow-sm"|attr:"placeholder:กรอกข้อมูล" }}
                 {% endif %}
                 {% if field.help_text %}
-                  <div class="form-text text-muted">{{ field.help_text }}</div>
+                  <small class="form-text text-muted">{{ field.help_text }}</small>
                 {% endif %}
                 {% if field.errors %}
-                  <div class="text-danger mt-1">
+                  <div class="text-danger mt-1 animate__animated animate__shakeX">
                     {% for error in field.errors %}
                       <small>{{ error }}</small>
                     {% endfor %}
@@ -32,8 +41,13 @@
                 {% endif %}
               </div>
             {% endfor %}
-            <div class="d-grid">
-              <button type="submit" class="btn btn-primary btn-lg">บันทึกสินค้า</button>
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+                <i class="fas fa-save me-2"></i>บันทึกสินค้า
+              </button>
+              <a href="{% url 'manage_products' %}" class="btn btn-outline-secondary btn-lg shadow-sm">
+                <i class="fas fa-arrow-left me-2"></i>กลับไปหน้าจัดการ
+              </a>
             </div>
           </form>
         </div>
@@ -41,4 +55,69 @@
     </div>
   </div>
 </div>
+
+<!-- Custom Styles -->
+<style>
+  .bg-gradient-primary {
+    background: linear-gradient(45deg, #007bff, #00c4cc);
+  }
+
+  .form-control {
+    transition: all 0.3s ease;
+    border-radius: 0.5rem;
+  }
+
+  .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+
+  .btn {
+    transition: all 0.3s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .card {
+    transition: transform 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+  }
+
+  .form-label {
+    font-size: 1.1rem;
+  }
+</style>
+
+<!-- JavaScript for Image Preview -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.querySelector('input[type="file"]');
+    const preview = document.getElementById('imagePreview');
+
+    if (imageInput) {
+      imageInput.addEventListener('change', function(e) {
+        preview.innerHTML = '';
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'img-thumbnail rounded mt-2';
+            img.style.maxWidth = '150px';
+            img.style.height = 'auto';
+            preview.appendChild(img);
+          }
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+  });
+</script>
 {% endblock %}

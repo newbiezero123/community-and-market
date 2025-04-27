@@ -3,96 +3,285 @@
 
 {% block content %}
 <div class="container py-5">
-    <h1 class="text-center mb-4">จัดการสินค้า</h1>
-
-    {% if messages %}
-        {% for message in messages %}
-            <script>
-                Swal.fire({
-                    icon: "{{ message.tags }}",
-                    title: "{{ message }}",
-                    showConfirmButton: false,
-                    timer: 2000
-                });
-            </script>
-        {% endfor %}
-    {% endif %}
-
-    <div class="d-flex justify-content-end mb-3">
-        <a href="{% url 'add_product' %}" class="btn btn-success">
-            <i class="fas fa-plus"></i> เพิ่มสินค้า
-        </a>
-    </div>
-
-    <!-- Wrapper table ด้วย .table-responsive เพื่อความ responsive -->
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover text-center">
-            <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>รูปภาพ</th>
-                    <th>ชื่อสินค้า</th>
-                    <th>ประเภทสินค้า</th>
-                    <th>ราคา</th>
-                    <th>สต็อก</th>
-                    <th>การจัดการ</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for product in products %}
-                <tr>
-                    <td>{{ forloop.counter }}</td>
-                    <td>
-                        {% if product.image %}
-                            <img src="{{ product.image.url }}" class="img-fluid" style="width:80px; height:80px; object-fit: cover;">
-                        {% else %}
-                            <span class="text-muted">ไม่มีรูป</span>
-                        {% endif %}
-                    </td>
-                    <td>{{ product.name }}</td>
-                    <td>{{ product.get_category_display }}</td>
-                    <td>{{ product.price }} บาท</td>
-                    <td>{{ product.stock }} ชิ้น</td>
-                    <td>
-                        <a href="{% url 'edit_product' product.id %}" class="btn btn-warning btn-sm">
-                            <i class="fas fa-edit"></i> แก้ไข
+    <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="fas fa-box me-2"></i>จัดการสินค้า</h4>
+                <a href="{% url 'add_product' %}" class="btn btn-light">
+                    <i class="fas fa-plus-circle me-1"></i> เพิ่มสินค้าใหม่
+                </a>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <!-- Search and filter section -->
+            <div class="row mb-3">
+                <div class="col-md-12 mb-3 mb-md-0">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control" placeholder="ค้นหาสินค้า...">
+                        <button class="btn btn-outline-secondary" type="button">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products table with responsive design -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle" id="productsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="text-center" width="5%">#</th>
+                            <th class="text-center" width="15%">รูปภาพ</th>
+                            <th width="25%">ชื่อสินค้า</th>
+                            <th width="15%">ประเภท</th>
+                            <th class="text-end" width="10%">ราคา</th>
+                            <th class="text-center" width="10%">สต็อก</th>
+                            <th class="text-center" width="20%">การจัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td class="text-center">{{ forloop.counter }}</td>
+                            <td class="text-center">
+                                {% if product.image %}
+                                    <img src="{{ product.image.url }}" class="rounded img-thumbnail" style="width:70px; height:70px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width:70px; height:70px; margin:0 auto;">
+                                        <i class="fas fa-image text-secondary fs-4"></i>
+                                    </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="fw-bold">{{ product.name }}</div>
+                                <small class="text-muted d-md-none">{{ product.get_category_display }}</small>
+                            </td>
+                            <td class="d-none d-md-table-cell">{{ product.get_category_display }}</td>
+                            <td class="text-end fw-bold">{{ product.price }} บาท</td>
+                            <td class="text-center">
+                                {% if product.stock <= 5 %}
+                                    <span class="badge bg-danger">{{ product.stock }}</span>
+                                {% elif product.stock <= 20 %}
+                                    <span class="badge bg-warning text-dark">{{ product.stock }}</span>
+                                {% else %}
+                                    <span class="badge bg-success">{{ product.stock }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group w-100">
+                                    <a href="{% url 'edit_product' product.id %}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-edit me-md-1"></i><span class="d-none d-md-inline">แก้ไข</span>
+                                    </a>
+                                    <button type="button" class="btn btn-outline-success btn-sm view-product" data-id="{{ product.id }}">
+                                        <i class="fas fa-eye me-md-1"></i><span class="d-none d-md-inline">ดู</span>
+                                    </button>
+                                    <button type="button" class="btn btn-outline-danger btn-sm delete-product" data-id="{{ product.id }}" data-name="{{ product.name }}">
+                                        <i class="fas fa-trash me-md-1"></i><span class="d-none d-md-inline">ลบ</span>
+                                    </button>
+                                </div>
+                                <form id="delete-form-{{ product.id }}" method="POST" action="{% url 'delete_product' product.id %}" style="display: none;">
+                                    {% csrf_token %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="fas fa-box-open fs-1 mb-3"></i>
+                                    <p>ไม่มีสินค้าในระบบ</p>
+                                    <a href="{% url 'add_product' %}" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-plus-circle me-1"></i> เพิ่มสินค้าใหม่
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Pagination (if needed) -->
+            {% if products.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
                         </a>
-                        <form method="POST" action="{% url 'delete_product' product.id %}" style="display: inline;" onsubmit="confirmDelete(event, this)">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger btn-sm">
-                                <i class="fas fa-trash"></i> ลบ
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="text-muted">ไม่มีสินค้าในระบบ</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;</span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for i in products.paginator.page_range %}
+                        {% if products.number == i %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ i }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
     </div>
 </div>
-<!-- SweetAlert2 -->
+
+<!-- Product Preview Modal -->
+<div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">รายละเอียดสินค้า</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3" id="modalProductImage">
+                    <!-- Image will be inserted here -->
+                </div>
+                <table class="table table-borderless">
+                    <tr>
+                        <th width="30%">ชื่อสินค้า:</th>
+                        <td id="modalProductName"></td>
+                    </tr>
+                    <tr>
+                        <th>ประเภท:</th>
+                        <td id="modalProductCategory"></td>
+                    </tr>
+                    <tr>
+                        <th>ราคา:</th>
+                        <td id="modalProductPrice"></td>
+                    </tr>
+                    <tr>
+                        <th>สต็อก:</th>
+                        <td id="modalProductStock"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                <a href="#" class="btn btn-primary" id="modalEditBtn">แก้ไขสินค้า</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SweetAlert2 for notifications -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    function confirmDelete(event, form) {
-        event.preventDefault();
-        Swal.fire({
-            title: "คุณแน่ใจหรือไม่?",
-            text: "เมื่อลบแล้วจะไม่สามารถกู้คืนได้!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "ใช่, ลบเลย!",
-            cancelButtonText: "ยกเลิก"
-        }).then((result) => {
-            if (result.isConfirmed) {
-                form.submit();
-            }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function() {
+                const searchText = this.value.toLowerCase();
+                const table = document.getElementById('productsTable');
+                const rows = table.querySelectorAll('tbody tr');
+                
+                rows.forEach(row => {
+                    const nameColumn = row.querySelector('td:nth-child(3)');
+                    if (nameColumn) {
+                        const productName = nameColumn.textContent.toLowerCase();
+                        if (productName.includes(searchText)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Delete product functionality
+        document.querySelectorAll('.delete-product').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-id');
+                const productName = this.getAttribute('data-name');
+                
+                Swal.fire({
+                    title: "ยืนยันการลบ?",
+                    html: `คุณต้องการลบสินค้า <strong>"${productName}"</strong> ใช่หรือไม่?<br><small class="text-danger">การกระทำนี้ไม่สามารถย้อนกลับได้</small>`,
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#d33",
+                    cancelButtonColor: "#3085d6",
+                    confirmButtonText: "ใช่, ลบเลย!",
+                    cancelButtonText: "ยกเลิก"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        document.getElementById(`delete-form-${productId}`).submit();
+                    }
+                });
+            });
         });
-    }
+        
+        // View product modal functionality
+        // Note: This is a placeholder. You'll need to adapt it based on your backend implementation
+        document.querySelectorAll('.view-product').forEach(button => {
+            button.addEventListener('click', function() {
+                const productId = this.getAttribute('data-id');
+                const row = this.closest('tr');
+                
+                // In a real implementation, you might fetch product details via AJAX
+                // For demo purposes, we'll use the data available in the table
+                const imgSrc = row.querySelector('td:nth-child(2) img')?.src || '';
+                const name = row.querySelector('td:nth-child(3)').textContent.trim();
+                const category = row.querySelector('td:nth-child(4)').textContent.trim();
+                const price = row.querySelector('td:nth-child(5)').textContent.trim();
+                const stock = row.querySelector('td:nth-child(6) .badge').textContent.trim();
+                
+                // Populate modal
+                document.getElementById('modalProductName').textContent = name;
+                document.getElementById('modalProductCategory').textContent = category;
+                document.getElementById('modalProductPrice').textContent = price;
+                document.getElementById('modalProductStock').textContent = stock;
+                
+                if (imgSrc) {
+                    document.getElementById('modalProductImage').innerHTML = `<img src="${imgSrc}" class="img-fluid rounded" style="max-height: 200px;">`;
+                } else {
+                    document.getElementById('modalProductImage').innerHTML = `<div class="bg-light rounded d-flex align-items-center justify-content-center" style="height:200px;"><i class="fas fa-image text-secondary fs-1"></i></div>`;
+                }
+                
+                document.getElementById('modalEditBtn').href = `{% url 'edit_product' 999 %}`.replace('999', productId);
+                
+                // Show modal
+                const modal = new bootstrap.Modal(document.getElementById('productModal'));
+                modal.show();
+            });
+        });
+        
+        // Highlight table row on hover
+        const tableRows = document.querySelectorAll('#productsTable tbody tr');
+        tableRows.forEach(row => {
+            row.addEventListener('mouseover', function() {
+                this.classList.add('table-active');
+            });
+            row.addEventListener('mouseout', function() {
+                this.classList.remove('table-active');
+            });
+        });
+    });
 </script>
 {% endblock %}

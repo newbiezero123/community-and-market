@@ -164,19 +164,5 @@
         form.submit();
     }
 </script>
-{% if messages %}
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-    {% for message in messages %}
-    Swal.fire({
-        icon: "{{ message.tags }}",  // เช่น success, error, warning
-        title: "{{ message|escapejs }}",
-        showConfirmButton: false,
-        timer: 1000
-    });
-    {% endfor %}
-});
-</script>
-{% endif %}
 
 {% endblock %}
